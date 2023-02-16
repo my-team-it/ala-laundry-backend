@@ -7,8 +7,7 @@ const order_schema = new Schema({
     payment_status: String,
     sum: Number,
     mode: String,
-    machine_status: String,
-    prv_txn_id: Number
+    machine_status: String
  });
   
 module.exports = mongoose.model("Order", order_schema);
