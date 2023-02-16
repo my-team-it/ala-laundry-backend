@@ -13,7 +13,11 @@ exports.getTransactionById = async (id) => {
 };
 
 exports.getTransactionByPrvTxnId = async (prv_txn_id) => {
-  return await TransactionModel.findOne({prv_txn_id:prv_txn_id});
+  return await TransactionModel.findOne({prv_txn_id:prv_txn_id}, function (err, result) {
+    if (!result) {
+      return null;
+    }
+  }).clone();
 };
  
 exports.updateTransaction = async (id, Transaction) => {

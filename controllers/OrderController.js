@@ -1,4 +1,33 @@
+const transactionService = require("../services/TransactionService");
 const orderService = require("../services/OrderService");
+
+function generate_id() {
+  let prv_txn_id;
+
+  do {
+    prv_txn_id = Math.floor(Math.random() * Math.pow(10, 20));
+  } while (!transactionService.getTransactionByPrvTxnId(prv_txn_id))  
+  
+  return prv_txn_id;
+}
+
+function check(sumInDatabase, txn_id, sum) {
+  if(sumInDatabase == sum) {
+    return {txn_id:txn_id, result: 0, comment: "Item found"};
+  }
+
+  return {txt_id:txt_id, result: 5, comment: "Item sum incorrect"};
+}
+
+function pay(sumInDatabase, txn_id, sum) {
+  const prv_txn_id = generate_id();
+
+  if (sumInDatabase == sum) {
+    return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 0, sum:sum, comment: "Pay item found" };
+  }
+
+  return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 1, sum:sum, comment: "Pay item sum incorrect" };
+}
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -12,9 +41,7 @@ exports.getAllOrders = async (req, res) => {
 exports.createOrder = async (req, res) => {
   try {
     const order = await orderService.createOrder(req.body);
-    // to do : prv_txn_id generate
-    // res.json({ data: order, status: "success" });
-    res.send("Kaspi QR");
+    res.json({ data: order, status: "success" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -49,44 +76,19 @@ exports.deleteOrder = async (req, res) => {
 
 exports.checkOrderById = async (req, res) => {
   try {
-    const check = await orderService.getOrderById(req.query.account);
-    if(req.query.command == 'check') {
-      const sumInDatabase = order.sum;
-      const {txn_id, sum } = req.query;
-
-      if(sumInDatabase == sum) {
-        return res.json({txn_id, result: 0, comment: ""});
-      }
-      else {
-        return res.json({txt_id, result: 5, comment: ""});
-      }
-    }
-    else if (req.query.command == 'pay') {
-      const sumInDatabase = order.sum; // Assuming that sum is a property of order object
-      const { txn_id, sum } = req.query;
-
-    if (sumInDatabase == sum) {
-      return res.json({ txn_id, prv_txn_id: "???", result: 0, sum, comment: "" });
-    } else {
-      return res.json({ txn_id, prv_txn_id: "???", result: 1, sum, comment: "" });
-    }
-    }
-    else {
-      return res.json({ txn_id: req.query.txn_id, result: 1, comment: "" });
-    }
-  } catch (err) {
-  return res.json({ txn_id: req.query.txn_id, result: 1, comment: "" });
-}
-}
-
-exports.checkOrderById = async (req, res) => {
-  try {
     const order = await orderService.getOrderById(req.query.account);
-    if (req.query.command == 'check') {
-      console.log(order)
+
+    let json;
+
+    switch (req.query.command) {
+      case 'check' : json = check(order.sum, req.query.txn_id, req.query.sum);break;
+      case 'pay' : json = pay(order.sum, req.query.txn_id, req.query.sum);break;
+      default: json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
     }
-    res.json({ data: order, status: "success" });
+
+    res.json(json);
+
   } catch (err) {
-    res.json({txn_id: req.query.txn_id, result: 1, comment:""});
+    res.json({ txn_id: req.query.txn_id, result: 1, comment: "Item not found" });
   }
-};
+}
