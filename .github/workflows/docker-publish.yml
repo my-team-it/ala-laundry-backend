@@ -101,14 +101,12 @@ jobs:
         - name: Checkout files    
           uses: actions/checkout@v2
           
-        - name: Get tag name
-          uses: olegtarasov/get-tag@v2
-          
         - name: Install doctl
           uses: digitalocean/action-doctl@v2
           with:
             token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           
         - name: Provision Droplet and deploy container
-          run: doctl compute droplet create --image docker-18-04 --size s-1vcpu-1gb --region nyc1 --user-data-file deploy.sh --wait "$GIT_TAG_NAME"
+          run: doctl compute droplet delete ala-laundry-backend
+          run: doctl compute droplet create --image docker-18-04 --size s-1vcpu-1gb --region nyc1 --user-data-file deploy.sh --wait ala-laundry-backend
 
