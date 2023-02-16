@@ -1,4 +1,11 @@
 {
+  "name": "ala_laundry_backend",
+  "version": "1.0.0",
+  "author": "Amirkhan Orazbay amirhan9878@gmail.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "body-parser": "^1.20.1",
     "express": "^4.18.2",
