@@ -12,6 +12,7 @@ exports.getAllOrders = async (req, res) => {
 exports.createOrder = async (req, res) => {
   try {
     const order = await orderService.createOrder(req.body);
+    // to do : prv_txn_id generate
     // res.json({ data: order, status: "success" });
     res.send("Kaspi QR");
   } catch (err) {
@@ -46,49 +47,38 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
+exports.checkOrderById = async (req, res) => {
+  try {
+    const check = await orderService.getOrderById(req.query.account);
+    if(req.query.command == 'check') {
+      const sumInDatabase = order.sum;
+      const {txn_id, sum } = req.query;
 
-//Need to complete 
-//this func will be for kaspi side
-//req that come from kaspi will be processed here
-//when command is 'check'
-//  1)take req.query.account and check do we have it in our database ('account' in our database is 'id')
-//  2)if have it in our database compare req.query.sum and sum in our database
-//  2.1) if two sum is equal return json response
-//{
-//  txn_id: req.query.txn_id,
-//  result: 0,
-//  comment: ""
-//}
-//  2.2)if two sum is not equal return json response
-//{
-//  txn_id: req.query.txn_id,
-//  result: 5,
-//  comment: ""
-//}
-//  3)if don't have it in our database return json response
-//{
-//  txn_id: req.query.txn_id,
-//  result: 1,
-//  comment: ""
-//}
-//when command is 'pay'
-//  1)take req.query.account and check do we have it in our database ('account' in our database is 'id')
-//  2)if have it in our database compare req.query.sum and sum in our database
-//{
-//  txn_id: req.query.txn_id,
-//  prv_txn_id: ???,
-//  result: 0,
-//  sum: req.query.sum,
-//  comment: ""
-//}
-//  3)if don't have it in our database return json response
-//{
-//  txn_id: req.query.txn_id,
-//  prv_txn_id: ???,
-//  result: 1,
-//  sum: req.query.sum,
-//  comment: ""
-//}
+      if(sumInDatabase == sum) {
+        return res.json({txn_id, result: 0, comment: ""});
+      }
+      else {
+        return res.json({txt_id, result: 5, comment: ""});
+      }
+    }
+    else if (req.query.command == 'pay') {
+      const sumInDatabase = order.sum; // Assuming that sum is a property of order object
+      const { txn_id, sum } = req.query;
+
+    if (sumInDatabase == sum) {
+      return res.json({ txn_id, prv_txn_id: "???", result: 0, sum, comment: "" });
+    } else {
+      return res.json({ txn_id, prv_txn_id: "???", result: 1, sum, comment: "" });
+    }
+    }
+    else {
+      return res.json({ txn_id: req.query.txn_id, result: 1, comment: "" });
+    }
+  } catch (err) {
+  return res.json({ txn_id: req.query.txn_id, result: 1, comment: "" });
+}
+}
+
 exports.checkOrderById = async (req, res) => {
   try {
     const order = await orderService.getOrderById(req.query.account);
