@@ -17,7 +17,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: "realsleep"
+  IMAGE_NAME: realsleep/ala-laundry-backend
 
 jobs:
   build:
