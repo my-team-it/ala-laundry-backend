@@ -5,10 +5,10 @@ const port = 8081
 const orderRouter = require("./routes/OrderRoutes");
 const kaspiRouter = require("./routes/KaspiRoutes");
 
-console.log(process.env.MONGODB_URI_ENC)
+console.log(process.env.MONGODB_URI_ENV)
 //configure mongoose
 mongoose.connect(
-  process.env.MONGODB_URI_ENC,
+  process.env.MONGODB_URI_ENV,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
