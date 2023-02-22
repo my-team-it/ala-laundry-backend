@@ -10,7 +10,7 @@ app.use(express.json())
 
 //configure mongoose
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb+srv://nodejs:87Almj42K3S0I1q9@payment-db-mongo-7fcfb51f.mongo.ondigitalocean.com/admin?replicaSet=payment-db-mongo&tls=true&authSource=admin",
+  process.env.MONGODB_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
