@@ -60,7 +60,7 @@ exports.getOrderById = async (req, res) => {
  
 exports.updateOrder = async (req, res) => {
   try {
-    const order = await orderService.updateOrder(req.params.id, req.body);
+    const order = await orderService.updateOrder(req.params.id, req.query);
     res.json({ data: order, status: "success" });
   } catch (err) {
     res.status(500).json({ error: err.message });
