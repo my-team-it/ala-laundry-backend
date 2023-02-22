@@ -98,14 +98,11 @@ jobs:
       runs-on: ubuntu-latest
       
       steps:
-        - name: Checkout files    
-          uses: actions/checkout@v2
-          
-        - name: Install doctl
-          uses: digitalocean/action-doctl@v2
+        - name: executing remote ssh commands using password
+          uses: appleboy/ssh-action@v0.1.7
           with:
-            token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          
-        - name: Provision Droplet and deploy container
-          run: doctl compute droplet delete ala-laundry-backend -f; doctl compute droplet create --image docker-20-04  --size s-1vcpu-1gb --region sfo3 --vpc-uuid 228754cb-b7db-47d7-a84d-ae71e9efd464 --tag-names 'ala' --user-data-file deploy.sh --wait ala-laundry-backend
-
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USERNAME }}
+            password: ${{ secrets.PASSWORD }}
+            port: ${{ secrets.PORT }}
+            script: whoami
