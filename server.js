@@ -1,13 +1,11 @@
 const express = require('express')
 const mongoose = require("mongoose");
 const app = express()
-const port = 8081
+const port = 8080
 const orderRouter = require("./routes/OrderRoutes");
 const kaspiRouter = require("./routes/KaspiRoutes");
 
-app.use(express.json())
-
-
+console.log(process.env.MONGODB_URI)
 //configure mongoose
 mongoose.connect(
   process.env.MONGODB_URI,

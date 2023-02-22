@@ -40,8 +40,10 @@ exports.getAllOrders = async (req, res) => {
  
 exports.createOrder = async (req, res) => {
   try {
-    const order = await orderService.createOrder(req.body);
-    res.json({ data: order, status: "success" });
+    req.query.payment_status = "unpaid";
+    req.query.machine_status = "off";
+    const order = await orderService.createOrder(req.query);
+    res.json({ data: order, status: "success"});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
