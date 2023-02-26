@@ -22,13 +22,12 @@ function check(sumInDatabase, txn_id, sum) {
 
 async function pay(query, sumInDatabase) {
   const order = await orderService.getOrderById(query.account);
-  const result = await firebaseService.writeData(order, order.machine_id);
-  console.log(result);
 
   const prv_txn_id = generate_id();
 
   if (sumInDatabase == query.sum) {
-    const result = await orderService.updateOrder(query.account, {payment_status:"paid"});
+    const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:"paid", machine_status:1});
+    const result = await firebaseService.writeData(order, order.machine_id);
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:query.sum, comment: "Pay item found" };
   }
 

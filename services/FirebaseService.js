@@ -22,7 +22,7 @@ module.exports.writeData = async (data, machine_id) => {
         trigger: data.machine_status,
       });
 
-      let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
+      let washingMachinesOutputRef = firebase.database().ref(`/id${machine_id}/output`);
       washingMachinesOutputRef.update({
         duration: data.duration,
       })
