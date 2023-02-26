@@ -14,16 +14,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 module.exports.writeData = async (data, machine_id) => {
-  try {
     let washingMachinesInputRef = firebase.database().ref(`id${machine_id}/input`);
-    console.log(washingMachinesInputRef);
-    console.log(`/id${machine_id}/input`);
-    
-    washingMachinesInputRef.update({
-      mode: data.mode,
-      trigger: data.machine_status,
-    });
-
+    try {
+      washingMachinesInputRef.update({
+        mode: data.mode,
+        trigger: data.machine_status,
+      });
+    } catch (err) {
+      console.log('awds')
+      console.log(err);
+    }
     // let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
     // washingMachinesOutputRef.update({
     //   duration: data.duration,
@@ -34,10 +34,6 @@ module.exports.writeData = async (data, machine_id) => {
     //   .catch(() => {
     //     return {message:"Не удалось сохранить настройки"};
     //   });
-  } catch (err) {
-    console.log('awds')
-    console.log(err);
-  }
 };
 
 module.exports.readData = async (machine_id) => {
