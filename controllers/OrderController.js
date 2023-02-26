@@ -47,7 +47,7 @@ exports.getAllOrders = async (req, res) => {
 exports.createOrder = async (req, res) => {
   try {
     req.query.payment_status = "unpaid";
-    req.query.machine_status = "off";
+    req.query.machine_status = 0;
     const order = await orderService.createOrder(req.query);
     res.json({ data: order, status: "success"});
   } catch (err) {
