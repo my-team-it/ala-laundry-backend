@@ -14,30 +14,23 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 module.exports.writeData = async (data, machine_id) => {
-  console.log('1');
   try {
     let washingMachinesInputRef = firebase.database().ref(`/${machine_id}/input`);
-    washingMachinesInputRef.update({
-      mode: data.mode,
-      trigger: data.machine_status,
-    })
-      .then(() => {
-        return {message:"Настройки успешно заданы."};
+    return await washingMachinesInputRef.update({
+        mode: data.mode,
+        trigger: data.machine_status,
       })
-      .catch(() => {
-        return {message:"Не удалось сохранить настройки"};
-      });
 
-    let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
-    washingMachinesOutputRef.update({
-      duration: data.duration,
-    })
-      .then(() => {
-        return {message:"Настройки успешно заданы."};
-      })
-      .catch(() => {
-        return {message:"Не удалось сохранить настройки"};
-      });
+    // let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
+    // washingMachinesOutputRef.update({
+    //   duration: data.duration,
+    // })
+    //   .then(() => {
+    //     return {message:"Настройки успешно заданы."};
+    //   })
+    //   .catch(() => {
+    //     return {message:"Не удалось сохранить настройки"};
+    //   });
   } catch (err) {
     console.log('awds')
     console.log(err);
