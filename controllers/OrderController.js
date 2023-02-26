@@ -20,16 +20,17 @@ function check(sumInDatabase, txn_id, sum) {
   return {txt_id:txt_id, result: 5, comment: "Item sum incorrect"};
 }
 
-async function pay(sumInDatabase, txn_id, sum) {
-  const order = await orderService.getOrderById(req.query.account);
+async function pay(query, sumInDatabase) {
+  const order = await orderService.getOrderById(query.account);
 
   const result = await firebaseService.writeData(order, order.machine_id);
   console.log(result);
 
   const prv_txn_id = generate_id();
 
-  if (sumInDatabase == sum) {
-    return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 0, sum:sum, comment: "Pay item found" };
+  if (sumInDatabase == query.sum) {
+    const result = await orderService.updateOrder(query._id, {payment_status:"paid"});
+    return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 0, sum:query.sum, comment: "Pay item found" };
   }
 
   return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 1, sum:sum, comment: "Pay item sum incorrect" };
@@ -90,13 +91,13 @@ exports.checkOrderById = async (req, res) => {
 
     switch (req.query.command) {
       case 'check' : json = check(order.sum, req.query.txn_id, req.query.sum);break;
-      case 'pay' : json = await pay(order.sum, req.query.txn_id, req.query.sum);break;
+      case 'pay' : json = await pay(req.query, order.sum);break;
       default: json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
     }
 
     res.json(json);
 
   } catch (err) {
-    res.json({ txn_id: req.query.txn_id, result: 1, comment: "Item not found" });
+    res.json({ txn_id: req.query.txn_id, result: 1, comment: "Error during processing" });
   }
 }
