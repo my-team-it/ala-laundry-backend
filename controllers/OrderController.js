@@ -97,6 +97,7 @@ exports.checkOrderById = async (req, res) => {
     res.json(json);
 
   } catch (err) {
+    console.log(err)
     res.json({ txn_id: req.query.txn_id, result: 1, comment: "Error during processing" });
   }
 }
