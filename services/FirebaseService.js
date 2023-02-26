@@ -13,13 +13,11 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig)
 
-const database = firebase.database()
-const washingMachinesRef = database.ref();
-
 module.exports.writeData = async (data, machine_id) => {
   console.log('1');
   try {
-    update(ref(washingMachinesRef, `/${machine_id}/input`), {
+    let washingMachinesInputRef = firebase.database().ref(`/${machine_id}/input`);
+    washingMachinesInputRef.update({
       mode: data.mode,
       trigger: data.trigger,
     })
@@ -32,7 +30,8 @@ module.exports.writeData = async (data, machine_id) => {
         return {message:"Не удалось сохранить настройки"};
       });
 
-    update(ref(db, `/${machine_id}/output`), {
+    let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
+    washingMachinesOutputRef.update({
       duration: data.duration,
     })
       .then(() => {
