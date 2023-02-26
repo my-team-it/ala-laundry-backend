@@ -22,11 +22,9 @@ module.exports.writeData = async (data, machine_id) => {
       trigger: data.machine_status,
     })
       .then(() => {
-        console.log('2.1');
         return {message:"Настройки успешно заданы."};
       })
       .catch(() => {
-        console.log('2.2');
         return {message:"Не удалось сохранить настройки"};
       });
 
@@ -35,14 +33,13 @@ module.exports.writeData = async (data, machine_id) => {
       duration: data.duration,
     })
       .then(() => {
-        console.log('3.1');
         return {message:"Настройки успешно заданы."};
       })
       .catch(() => {
-        console.log('3.2');
         return {message:"Не удалось сохранить настройки"};
       });
   } catch (err) {
+    console.log('awds')
     console.log(err);
   }
 };
