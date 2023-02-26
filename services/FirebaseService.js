@@ -17,20 +17,31 @@ const database = firebase.database()
 const washingMachinesRef = database.ref();
 
 module.exports.writeData = async (data, machine_id) => {
+  console.log('1');
   update(ref(washingMachinesRef, `/${machine_id}/input`), {
     mode: data.mode,
     trigger: data.trigger,
   })
     .then(() => {
+      console.log('2.1');
       return {message:"Настройки успешно заданы."};
     })
     .catch(() => {
+      console.log('2.2');
       return {message:"Не удалось сохранить настройки"};
     });
 
   update(ref(db, `/${machine_id}/output`), {
     duration: data.duration,
-  });
+  })
+    .then(() => {
+      console.log('3.1');
+      return {message:"Настройки успешно заданы."};
+    })
+    .catch(() => {
+      console.log('3.2');
+      return {message:"Не удалось сохранить настройки"};
+    });
 };
 
 module.exports.readData = async (machine_id) => {
