@@ -19,7 +19,7 @@ module.exports.writeData = async (data, machine_id) => {
     let washingMachinesInputRef = firebase.database().ref(`/${machine_id}/input`);
     washingMachinesInputRef.update({
       mode: data.mode,
-      trigger: data.trigger,
+      trigger: data.machine_status,
     })
       .then(() => {
         console.log('2.1');
