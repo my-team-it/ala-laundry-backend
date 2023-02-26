@@ -17,7 +17,7 @@ function check(sumInDatabase, txn_id, sum) {
     return {txn_id:txn_id, result: 0, comment: "Item found"};
   }
 
-  return {txt_id:txt_id, result: 5, comment: "Item sum incorrect"};
+  return {txt_id:txn_id, result: 5, comment: "Item sum incorrect"};
 }
 
 async function pay(query, sumInDatabase) {
