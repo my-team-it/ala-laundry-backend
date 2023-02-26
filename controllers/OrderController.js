@@ -22,7 +22,7 @@ function check(sumInDatabase, txn_id, sum) {
 
 async function pay(query, sumInDatabase) {
   const order = await orderService.getOrderById(query.account);
-
+  console.log('result');
   const result = await firebaseService.writeData(order, order.machine_id);
   console.log(result);
 
