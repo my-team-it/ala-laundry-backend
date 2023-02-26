@@ -8,7 +8,6 @@ const order_schema = new Schema({
     mode: Number,
     duration: Number,
     machine_status: Number,
-    door_status: Number,
  });
   
 module.exports = mongoose.model("Order", order_schema);

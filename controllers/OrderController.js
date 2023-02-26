@@ -48,7 +48,6 @@ exports.createOrder = async (req, res) => {
   try {
     req.query.payment_status = "unpaid";
     req.query.machine_status = "off";
-    req.query.door_status = await firebaseService.readData(req.query.machine_id).input.door_status;
     const order = await orderService.createOrder(req.query);
     res.json({ data: order, status: "success"});
   } catch (err) {
