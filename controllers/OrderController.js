@@ -28,7 +28,7 @@ async function pay(query, sumInDatabase) {
   const prv_txn_id = generate_id();
 
   if (sumInDatabase == query.sum) {
-    const result = await orderService.updateOrder(query._id, {payment_status:"paid"});
+    const result = await orderService.updateOrder(query.account, {payment_status:"paid"});
     return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 0, sum:query.sum, comment: "Pay item found" };
   }
 
