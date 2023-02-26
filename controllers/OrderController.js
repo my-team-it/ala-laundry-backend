@@ -29,10 +29,10 @@ async function pay(query, sumInDatabase) {
 
   if (sumInDatabase == query.sum) {
     const result = await orderService.updateOrder(query.account, {payment_status:"paid"});
-    return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 0, sum:query.sum, comment: "Pay item found" };
+    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:query.sum, comment: "Pay item found" };
   }
 
-  return { txn_id:txn_id, prv_txn_id: prv_txn_id, result: 1, sum:sum, comment: "Pay item sum incorrect" };
+  return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 1, sum:query.sum, comment: "Pay item sum incorrect" };
 }
 
 exports.getAllOrders = async (req, res) => {
