@@ -16,10 +16,13 @@ firebase.initializeApp(firebaseConfig)
 module.exports.writeData = async (data, machine_id) => {
   try {
     let washingMachinesInputRef = firebase.database().ref(`/id${machine_id}/input`);
+    console.log(washingMachinesInputRef);
+    console.log(`/id${machine_id}/input`);
+    
     washingMachinesInputRef.update({
-        mode: data.mode,
-        trigger: data.machine_status,
-      })
+      mode: data.mode,
+      trigger: data.machine_status,
+    });
 
     // let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
     // washingMachinesOutputRef.update({
