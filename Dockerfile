@@ -20,5 +20,5 @@ ENV MONGODB_URI_ENV=$MONGODB_URI_ARG
 # Bundle app source
 COPY . .
 
-EXPOSE 8080
+EXPOSE 443
 CMD [ "node", "server.js" ]
