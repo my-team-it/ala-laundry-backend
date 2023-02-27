@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const https = require("https");
 const fs = require("fs");
 const app = express()
-const port = 8081
+const port = 443
 const orderRouter = require("./routes/OrderRoutes");
 const kaspiRouter = require("./routes/KaspiRoutes");
 
@@ -34,8 +34,8 @@ https
     },
     app
   )
-  .listen(443, () => {
-    console.log("serever is runing at port 443");
+  .listen(port, () => {
+    console.log(`serever is runing at port ${port}`);
   });
 
 app.get('/payment', (req, res) => {
