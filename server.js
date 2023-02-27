@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require("mongoose");
+const https = require("https");
+const fs = require("fs");
 const app = express()
 const port = 8081
 const orderRouter = require("./routes/OrderRoutes");
@@ -22,6 +24,20 @@ mongoose.connect(
   }
 );
 
+https
+  .createServer(
+		// Provide the private and public key to the server by reading each
+		// file's content with the readFileSync() method.
+    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },
+    app
+  )
+  .listen(443, () => {
+    console.log("serever is runing at port 443");
+  });
+
 app.get('/payment', (req, res) => {
     res.send('Hello World!')
 })
@@ -33,8 +49,3 @@ app.get('/create/order', (req, res) => {
 
 app.use("/api/order", orderRouter);
 app.use("/payment_route", kaspiRouter);
-
-
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
