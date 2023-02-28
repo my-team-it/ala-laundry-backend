@@ -14,8 +14,8 @@ function generate_id() {
 
 async function check(query) {
   const order = await orderService.getOrderById(query.account);
-  console.log({txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"});
-  return {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
+  const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
+  return response;
 }
 
 async function pay(query, sumInDatabase) {
