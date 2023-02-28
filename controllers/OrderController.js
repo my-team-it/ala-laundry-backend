@@ -15,6 +15,7 @@ function generate_id() {
 async function check(query) {
   const order = await orderService.getOrderById(query.account);
   const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
+  console.log(response)
   return response;
 }
 
@@ -86,7 +87,7 @@ exports.checkOrderById = async (req, res) => {
     let json;
 
     switch (req.query.command) {
-      case 'check' : json = check(req.query);break;
+      case 'check' : json = await check(req.query);break;
       case 'pay' : json = await pay(req.query, order.sum);break;
       default: json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
     }
