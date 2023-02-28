@@ -86,7 +86,7 @@ exports.checkOrderById = async (req, res) => {
     let json;
 
     switch (req.query.command) {
-      case 'check' : json = check(req.query, order.sum);break;
+      case 'check' : json = check(req.query);break;
       case 'pay' : json = await pay(req.query, order.sum);break;
       default: json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
     }
