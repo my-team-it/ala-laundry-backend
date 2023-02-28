@@ -12,12 +12,10 @@ function generate_id() {
   return prv_txn_id;
 }
 
-function check(sumInDatabase, txn_id, sum) {
-  if(sumInDatabase == sum) {
-    return {txn_id:txn_id, result: 0, sum:parseInt(sum), comment: "Item found"};
-  }
-
-  return {txt_id:txn_id, result: 5, sum:parseInt(sum), comment: "Item sum incorrect"};
+async function check(sumInDatabase, txn_id, sum, account) {
+  const order = await orderService.getOrderById(account);
+  
+  return {txn_id:txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
 }
 
 async function pay(query, sumInDatabase) {
