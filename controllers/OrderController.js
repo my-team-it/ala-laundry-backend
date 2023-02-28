@@ -12,10 +12,10 @@ function generate_id() {
   return prv_txn_id;
 }
 
-async function check(sumInDatabase, txn_id, sum, account) {
-  const order = await orderService.getOrderById(account);
+async function check(query) {
+  const order = await orderService.getOrderById(query.account);
   
-  return {txn_id:txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
+  return {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
 }
 
 async function pay(query, sumInDatabase) {
@@ -86,7 +86,7 @@ exports.checkOrderById = async (req, res) => {
     let json;
 
     switch (req.query.command) {
-      case 'check' : json = check(order.sum, req.query.txn_id, req.query.sum);break;
+      case 'check' : json = check(req.query, order.sum);break;
       case 'pay' : json = await pay(req.query, order.sum);break;
       default: json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
     }
