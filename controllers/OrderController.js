@@ -14,6 +14,11 @@ function generate_id() {
 
 async function check(query) {
   const order = await orderService.getOrderById(query.account);
+
+  if (order.payment_status == 'paid') {
+    return { txn_id:query.txn_id, result: 3, sum:parseInt(query.sum), bin:"030213500928", comment: "Item already paid" };
+  }
+
   const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), bin:"030213500928", comment: "Item found"};
   return response;
 }
