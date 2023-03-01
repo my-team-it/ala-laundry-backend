@@ -14,7 +14,7 @@ function generate_id() {
 
 async function check(query) {
   const order = await orderService.getOrderById(query.account);
-  const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), comment: "Item found"};
+  const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), bin:"030213500928", comment: "Item found"};
   return response;
 }
 
@@ -26,10 +26,10 @@ async function pay(query, sumInDatabase) {
     const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:"paid", machine_status:1});
     const order = await orderService.getOrderById(query.account);
     const result = await firebaseService.writeData(order, order.machine_id);
-    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:parseInt(query.sum), comment: "Pay item found" };
+    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:parseInt(query.sum), bin:"030213500928", comment: "Pay item found" };
   }
 
-  return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 1, sum:parseInt(query.sum), comment: "Pay item sum incorrect" };
+  return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 1, sum:parseInt(query.sum), bin:"030213500928", comment: "Pay item sum incorrect" };
 }
 
 exports.getAllOrders = async (req, res) => {
