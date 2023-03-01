@@ -22,7 +22,7 @@ async function pay(query, sumInDatabase) {
   const order = await orderService.getOrderById(query.account);
   const prv_txn_id = generate_id();
   if (order.payment_status == 'paid') {
-    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 3, sum:parseInt(query.sum), bin:"030213500928", comment: "Pay item sum incorrect" };
+    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 3, sum:parseInt(query.sum), bin:"030213500928", comment: "Item already paid" };
   }
 
   if (sumInDatabase == query.sum) {
