@@ -55,7 +55,8 @@ exports.createOrder = async (req, res) => {
     req.query.payment_status = "unpaid";
     req.query.machine_status = 0;
     const order = await orderService.createOrder(req.query);
-    res.json({ data: order, status: "success"});
+    //res.json({ data: order, status: "success"});
+    res.redirect('http://207.154.225.108/')
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
