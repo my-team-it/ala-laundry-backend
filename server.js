@@ -49,3 +49,7 @@ app.get('/create/order', (req, res) => {
 
 app.use("/api/order", orderRouter);
 app.use("/payment_route", kaspiRouter);
+
+app.listen(80, () => {
+  console.log(`Example app listening on port 80}`)
+})
