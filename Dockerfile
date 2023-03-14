@@ -21,4 +21,5 @@ ENV MONGODB_URI_ENV=$MONGODB_URI_ARG
 COPY . .
 
 EXPOSE 443
+EXPOSE 80
 CMD [ "node", "server.js" ]

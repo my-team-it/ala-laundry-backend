@@ -2,7 +2,8 @@ const express = require('express')
 const mongoose = require("mongoose");
 const https = require("https");
 const fs = require("fs");
-const app = express()
+const appHTTPS = express()
+const appHTTP = express()
 const port = 443
 const orderRouter = require("./routes/OrderRoutes");
 const kaspiRouter = require("./routes/KaspiRoutes");
@@ -32,20 +33,26 @@ https
       key: fs.readFileSync("key.pem"),
       cert: fs.readFileSync("cert.pem"),
     },
-    app
+    appHTTPS
   )
   .listen(port, () => {
     console.log(`serever is runing at port ${port}`);
   });
 
-app.get('/payment', (req, res) => {
+appHTTPS.get('/payment', (req, res) => {
     res.send('Hello World!')
 })
 
-app.get('/create/order', (req, res) => {
-    main().catch(console.error);
+appHTTPS.use("/api/order", orderRouter);
+appHTTPS.use("/payment_route", kaspiRouter);
+
+
+appHTTP.get('/payment', (req, res) => {
     res.send('Hello World!')
 })
 
-app.use("/api/order", orderRouter);
-app.use("/payment_route", kaspiRouter);
+appHTTP.use("/api/order", orderRouter);
+appHTTP.listen(80, () => {
+  console.log(`Example app listening on port 80`)
+})
+
