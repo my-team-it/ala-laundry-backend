@@ -2,6 +2,9 @@ const transactionService = require("../services/TransactionService");
 const orderService = require("../services/OrderService");
 const firebaseService = require("../services/FirebaseService");
 
+const list_of_modes = ["Hygienic","Linen","Color","Delicate","Mixed","Quick","Cotton","Eco","Synthetic","Rinse","Drain","Drum Clean"];
+const list_of_prices = [500,500,500,500,500,400,500,1200,500,300,300,700];
+
 function generate_id() {
   let prv_txn_id;
 
@@ -16,10 +19,20 @@ async function check(query) {
   const order = await orderService.getOrderById(query.account);
 
   if (order.payment_status == 'paid') {
-    return { txn_id:query.txn_id, result: 3, sum:parseInt(query.sum), bin:"030213500928", comment: "Item already paid" };
+    return { txn_id:query.txn_id, result: 3, bin:"030213500928", comment: "Item already paid" };
   }
 
-  const response = {txn_id:query.txn_id, result: 0, sum:parseInt(order.sum), bin:"030213500928", comment: "Item found"};
+  const price_list = list_of_modes.map((key, index) => ({ name: key, price: list_of_prices[index]}));
+  
+  const response = {
+    txn_id:query.txn_id, 
+    result: 0, 
+    fields:{
+      services:price_list
+    }, 
+    bin:"030213500928",
+    comment: "Item found"
+  };
   return response;
 }
 
