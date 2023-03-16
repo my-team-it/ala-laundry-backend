@@ -124,7 +124,7 @@ exports.checkOrderById = async (req, res) => {
 
 exports.get_price = async (req, res) => {
   try {
-    res.json({sum:list_of_prices[req.query.serviceId]});
+    res.json({sum:list_of_prices[req.query.service_id]});
   } catch (err) {
     console.log(err)
     res.json({comment: "Error during processing" });
