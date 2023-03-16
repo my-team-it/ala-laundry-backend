@@ -5,8 +5,8 @@ const fs = require('fs');
 const appHTTPS = express()
 const appHTTP = express()
 
-const portHTTPS = 4343
-const portHTTP = 8080
+const portHTTPS = 443
+const portHTTP = 80
 
 const orderRouter = require('./routes/OrderRoutes');
 const kaspiRouter = require('./routes/KaspiRoutes');
