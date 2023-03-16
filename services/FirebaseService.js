@@ -1,14 +1,13 @@
 const firebase = require('firebase')
 
-// TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB95Rp0pvwjcFi0dHEvvrRh0svfTkuL7MA",
-  authDomain: "ala-laundry-902e5.firebaseapp.com",
-  projectId: "ala-laundry-902e5",
-  storageBucket: "ala-laundry-902e5.appspot.com",
-  messagingSenderId: "844364387376",
-  appId: "1:844364387376:web:545d4930063b7ad41ec9f5",
-  measurementId: "G-BLBDRXZKGE"
+  apiKey: 'AIzaSyB95Rp0pvwjcFi0dHEvvrRh0svfTkuL7MA',
+  authDomain: 'ala-laundry-902e5.firebaseapp.com',
+  projectId: 'ala-laundry-902e5',
+  storageBucket: 'ala-laundry-902e5.appspot.com',
+  messagingSenderId: '844364387376',
+  appId: '1:844364387376:web:545d4930063b7ad41ec9f5',
+  measurementId: 'G-BLBDRXZKGE'
 };
 
 firebase.initializeApp(firebaseConfig)
@@ -39,7 +38,7 @@ module.exports.readData = async (machine_id) => {
         const data = snapshot.val();
         return {data:data}
       } else {
-        return {message:"No data available"};
+        return {message:'No data available'};
       }
     })
     .catch((error) => {
