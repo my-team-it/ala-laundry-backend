@@ -20,4 +20,4 @@ COPY . .
 
 EXPOSE 4343
 EXPOSE 8080
-CMD [ "node", "server.js" ]
+CMD [ "npm", "start" ]
