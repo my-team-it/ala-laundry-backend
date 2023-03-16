@@ -22,7 +22,7 @@ async function check(query) {
     return { txn_id:query.txn_id, result: 3, bin:"030213500928", comment: "Item already paid" };
   }
 
-  const price_list = list_of_modes.map((key, index) => ({ name: key, price: list_of_prices[index]}));
+  const price_list = list_of_modes.map((key, index) => ({ name: key, id: index}));
   
   const response = {
     txn_id:query.txn_id, 
@@ -119,5 +119,14 @@ exports.checkOrderById = async (req, res) => {
   } catch (err) {
     console.log(err)
     res.json({ txn_id: req.query.txn_id, result: 1, comment: "Error during processing" });
+  }
+}
+
+exports.get_price = async (req, res) => {
+  try {
+    res.json({sum:list_of_prices[req.query.serviceId]});
+  } catch (err) {
+    console.log(err)
+    res.json({comment: "Error during processing" });
   }
 }

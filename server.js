@@ -44,7 +44,7 @@ appHTTPS.get('/payment', (req, res) => {
 })
 
 appHTTPS.use("/api/order", orderRouter);
-appHTTPS.use("/payment_route", kaspiRouter);
+appHTTPS.use("/kaspi", kaspiRouter);
 
 
 appHTTP.get('/payment', (req, res) => {
