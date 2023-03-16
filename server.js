@@ -11,6 +11,7 @@ const portHTTP = 8080
 const orderRouter = require('./routes/OrderRoutes');
 const kaspiRouter = require('./routes/KaspiRoutes');
 
+console.log(process.env);
 mongoose.connect(
   process.env.MONGODB_URI_ENV,
   {
