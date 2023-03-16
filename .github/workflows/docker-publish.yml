@@ -55,7 +55,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: realsleep
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -72,3 +72,6 @@ jobs:
         with:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      
+      - name: executing remote ssh commands using password
+        run: ssh github@${{secrets.HOST}}; whoiam
