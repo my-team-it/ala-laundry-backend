@@ -12,8 +12,8 @@ RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
 
-ARG MONGODB_URI_ARG
-ENV MONGODB_URI_ENV=$MONGODB_URI_ARG
+ARG MONGODB_ARG
+ENV MONGODB_ENV=$MONGODB_ARG
 
 # Bundle app source
 COPY . .

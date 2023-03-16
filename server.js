@@ -13,7 +13,7 @@ const kaspiRouter = require('./routes/KaspiRoutes');
 
 console.log(process.env);
 mongoose.connect(
-  process.env.MONGODB_URI_ENV,
+  process.env.MONGO_DATABASE_URL,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
