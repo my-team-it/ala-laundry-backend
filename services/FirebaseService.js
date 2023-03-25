@@ -15,13 +15,13 @@ firebase.initializeApp(firebaseConfig)
 module.exports.writeData = async (data, machine_id) => {
     
     try {
-      let washingMachinesInputRef = firebase.database().ref(`/${machine_id}/input`);
+      let washingMachinesInputRef = firebase.database().ref(`${machine_id}/input`);
       washingMachinesInputRef.update({
         mode: data.mode,
         trigger: data.machine_status,
       });
 
-      let washingMachinesOutputRef = firebase.database().ref(`/${machine_id}/output`);
+      let washingMachinesOutputRef = firebase.database().ref(`${machine_id}/output`);
       washingMachinesOutputRef.update({
         duration: data.duration,
       })
@@ -31,17 +31,11 @@ module.exports.writeData = async (data, machine_id) => {
     
 };
 
-module.exports.readData = async (machine_id) => {
-  get(child(washingMachinesRef, `/${machine_id}`))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        return {data:data}
-      } else {
-        return {message:'No data available'};
-      }
-    })
-    .catch((error) => {
-      return {error:error};
-    });
-};
+// module.exports.readData = async (machine_id) => {
+//   var rootRef = firebase.database().ref();
+//   rootRef.once("value")
+//     .then(function(snapshot) {
+//       var key = snapshot.key; // null
+//       var childKey = snapshot.child(`/{}/ad`).key; // "ada"
+//     });
+// };
