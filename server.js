@@ -10,6 +10,7 @@ const portHTTP = 80
 
 const orderRouter = require('./routes/OrderRoutes');
 const kaspiRouter = require('./routes/KaspiRoutes');
+const machineRouter = require('./routes/MachineRoutes');
 
 mongoose.connect(
   process.env.MONGO_DATABASE_URL,
@@ -42,6 +43,7 @@ https.createServer(
 
 
 appHTTP.use('/api/order', orderRouter);
+appHTTP.use('/api/machine', machineRouter);
 
 appHTTP.listen(portHTTP, () => {
   console.log(`App (HTTP) listening on port ${portHTTP}`);
