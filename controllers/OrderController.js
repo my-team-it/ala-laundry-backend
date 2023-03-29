@@ -2,7 +2,7 @@ const transactionService = require('../services/TransactionService');
 const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 
-const list_of_modes = ['Hygienic','Linen','Color','Delicate','Mixed','Quick','Cotton','Eco','Synthetic','Rinse','Drain','Drum Clean'];
+const list_of_modes = ['"Іш киім" режимі|Режим "Постельное белье"','"Түсті" режимі|Режим "Цветной"','"Назік" режимі|Режим "Деликатный"','"Аралас" режимі|Режим "Смешанный"','"Жылдам" режимі|Режим "Быстрый"','"Мақта" режимі|Режим "Хлопок"','"Эко" режимі|Режим "Эко"','"Синтетикалық" режимі|Режим "Синтетический"','"Ысқылау" режимі|Режим "Ополаскивание"','"Ағызу" режимі|Режим "Слив"','"Барабанды тазалау" режимі|Режим "Очистка барабана"'];
 const list_of_prices = [500,500,500,500,500,400,500,1200,500,300,300,700];
 
 function generate_id() {
