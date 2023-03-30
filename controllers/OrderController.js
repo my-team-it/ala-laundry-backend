@@ -43,7 +43,8 @@ async function pay(query, sumInDatabase) {
   if (order.payment_status == 'paid') {
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 3, sum:parseInt(query.sum), bin:'030213500928', comment: 'Item already paid' };
   }
-
+  console.log(list_of_prices[query.service_id])
+  console.log(list_of_prices[query.service_id] == query.sum)
   if (list_of_prices[query.service_id] == query.sum) {
     const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:'unpaid', machine_status:1});
     // const result = await firebaseService.writeData(updateOrderResult, updateOrderResult.machine_id);
