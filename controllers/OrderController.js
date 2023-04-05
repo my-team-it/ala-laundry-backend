@@ -16,6 +16,7 @@ function generate_id() {
 }
 
 async function check(query) {
+  console.log(query);
   const order = await orderService.getOrderById(query.account);
 
   if (order.payment_status == 'paid') {
@@ -36,19 +37,17 @@ async function check(query) {
   return response;
 }
 
-async function pay(query, sumInDatabase) {
+async function pay(query) {
+  console.log(query)
   const order = await orderService.getOrderById(query.account);
   const prv_txn_id = generate_id();
   
   if (order.payment_status == 'paid') {
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 3, sum:parseInt(query.sum), bin:'030213500928', comment: 'Item already paid' };
   }
-  console.log(query)
-  console.log(list_of_prices[query.service_id])
-  console.log(list_of_prices[query.service_id] == query.sum)
   if (list_of_prices[parseInt(query.service_id)] == query.sum) {
-    const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:'unpaid', machine_status:1});
-    // const result = await firebaseService.writeData(updateOrderResult, updateOrderResult.machine_id);
+    const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:'paid', machine_status:1});
+    const result = await firebaseService.writeData(updateOrderResult, updateOrderResult.machine_id);
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:parseInt(query.sum), bin:'030213500928', comment: 'Pay item found'};
   }
 
@@ -60,6 +59,7 @@ exports.getAllOrders = async (req, res) => {
     const orders = await orderService.getAllOrders();
     res.json({ data: orders, status: 'success' });
   } catch (err) {
+    console.error(err.message)
     res.status(500).json({ error: err.message });
   }
 };
