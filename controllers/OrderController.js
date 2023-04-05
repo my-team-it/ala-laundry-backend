@@ -6,6 +6,7 @@ const dateTime = require('../utils/DateTime');
 
 const list_of_modes = ['"Іш киім" режимі|Режим "Постельное белье"','"Түсті" режимі|Режим "Цветной"','"Назік" режимі|Режим "Деликатный"','"Аралас" режимі|Режим "Смешанный"','"Жылдам" режимі|Режим "Быстрый"','"Мақта" режимі|Режим "Хлопок"','"Эко" режимі|Режим "Эко"','"Синтетикалық" режимі|Режим "Синтетический"','"Ысқылау" режимі|Режим "Ополаскивание"','"Ағызу" режимі|Режим "Слив"','"Барабанды тазалау" режимі|Режим "Очистка барабана"'];
 const list_of_prices = [500,500,500,500,500,400,500,1200,500,300,300,1];
+const list_of_durations = [500,500,500,500,500,400,500,1200,500,300,300,1];
 
 function generate_id() {
   let prv_txn_id;
@@ -39,15 +40,20 @@ async function check(query) {
 }
 
 async function pay(query) {
-  const order = await orderService.getOrderById(query.account);
   const prv_txn_id = generate_id();
-  
-  if (order.payment_status == 'paid') {
-    return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 3, sum:parseInt(query.sum), bin:'030213500928', comment: 'Item already paid' };
+  let service_id = parseInt(query.service_id)
+  let orderJson = {
+    machine_id: query.account,
+    payment_status: "paid",
+    sum: parseInt(query.sum),
+    mode: service_id,
+    duration: list_of_durations[service_id],
+    machine_status: 1
   }
-  if (list_of_prices[parseInt(query.service_id)] == query.sum) {
-    const updateOrderResult = await orderService.updateOrder(query.account, {payment_status:'paid', machine_status:1});
-    const result = await firebaseService.writeData(updateOrderResult, updateOrderResult.machine_id);
+  if (list_of_prices[service_id] == orderJson.sum) {
+    const order = await orderService.createOrder(orderJson);
+    console.log(dateTime.getDateTime() + "| Create order:" + order);
+    const result = await firebaseService.writeData(order, updateOrderResult.machine_id);
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:parseInt(query.sum), bin:'030213500928', comment: 'Pay item found'};
   }
 
