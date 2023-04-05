@@ -46,7 +46,8 @@ async function pay(query) {
   }
   let orders = orderService.getAllOrders();
   let id;
-  for (const order of orders) {  
+
+  for (const order in orders) {  
     if (order.machine_id == orderJson.machine_id) {
       id = order._id;
     }
