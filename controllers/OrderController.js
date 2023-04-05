@@ -70,7 +70,7 @@ async function pay(query) {
 }
 
 exports.getAllOrders = async (req, res) => {
-  console.log(dateTime.getDateTime() + "| Request:" + req);
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     const orders = await orderService.getAllOrders();
     console.log(dateTime.getDateTime() + "| Retrieve all orders:" + orders);
@@ -82,7 +82,7 @@ exports.getAllOrders = async (req, res) => {
 };
  
 exports.createOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + "| Request:" + req);
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     req.query.payment_status = 'unpaid';
     req.query.machine_status = 0;
@@ -95,7 +95,7 @@ exports.createOrder = async (req, res) => {
 };
  
 exports.getOrderById = async (req, res) => {
-  console.log(dateTime.getDateTime() + "| Request:" + req);
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     const order = await orderService.getOrderById(req.params.id);
     console.log(dateTime.getDateTime() + "| Retrieve order:" + order);
@@ -106,7 +106,7 @@ exports.getOrderById = async (req, res) => {
 };
  
 exports.updateOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + "| Request:" + req);
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     const order = await orderService.updateOrder(req.params.id, req.query);
     console.log(dateTime.getDateTime() + "| Update order:" + order);
@@ -117,7 +117,7 @@ exports.updateOrder = async (req, res) => {
 };
  
 exports.deleteOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + "| Request:" + req);
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     const order = await orderService.deleteOrder(req.params.id);
     console.log(dateTime.getDateTime() + "| Delete order:" + order);
@@ -130,7 +130,7 @@ exports.deleteOrder = async (req, res) => {
 exports.checkOrderById = async (req, res) => {
   let json;
   try {
-    console.log(dateTime.getDateTime() + "| Request:" + req);
+    console.log(dateTime.getDateTime() + "| Request query:" + req.query);
     switch (req.query.command) {
       case 'check' : json = await check(req.query);break;
       case 'pay' : json = await pay(req.query);break;
@@ -140,21 +140,21 @@ exports.checkOrderById = async (req, res) => {
     console.error(err);
     json = { txn_id: req.query.txn_id, result: 1, comment: 'Error during processing' };
   } finally {
-    console.log(dateTime.getDateTime() + "| Response:" + res)
+    console.log(dateTime.getDateTime() + "| Response:" + json)
     res.json(json);
   }
 }
 
 exports.get_price = async (req, res) => {
   let json;
-  console.log(dateTime.getDateTime() + "| Request:" + req)
+  console.log(dateTime.getDateTime() + "| Request query:" + req.query);
   try {
     json = {sum:list_of_prices[req.query.service_id]};
   } catch (err) {
     console.error(err)
     json = { result: 1, comment: 'Service not found' };
   } finally {
-    console.log(dateTime.getDateTime() + "| Response:" + res)
+    console.log(dateTime.getDateTime() + "| Response:" + json)
     res.json(json);
   }
 }
