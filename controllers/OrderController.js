@@ -46,13 +46,13 @@ async function pay(query) {
   }
   let orders = await orderService.getAllOrders();
   let id;
-  
+
   if (orders[0].machine_id == orderJson.machine_id) {
-    id = order._id;
+    id = orders[0]._id;
   }
 
   if (orders[1].machine_id == orderJson.machine_id) {
-    id = order._id;
+    id = orders[1]._id;
   }
 
   if (list_of_prices[service_id] == orderJson.sum) {
