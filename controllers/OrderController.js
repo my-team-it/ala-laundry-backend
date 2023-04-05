@@ -19,10 +19,6 @@ function generate_id() {
 }
 
 async function check(query) {
-  if (order.payment_status == 'paid') {
-    return { txn_id:query.txn_id, result: 3, bin:'030213500928', comment: 'Item already paid' };
-  }
-
   const price_list = list_of_modes.map((key, index) => ({ name: key, id: index}));
   
   const response = {
