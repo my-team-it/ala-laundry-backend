@@ -58,7 +58,7 @@ async function pay(query) {
   if (list_of_prices[service_id] == orderJson.sum) {
     const order = await orderService.updateOrder(id, orderJson);
     console.log(dateTime.getDateTime() + "| Update order:" + order);
-    const result = await firebaseService.writeData(order, order.machine_id);
+    const result = await firebaseService.writeData({machine_status:1,mode: service_id}, order.machine_id);
     return { txn_id:query.txn_id, prv_txn_id: prv_txn_id, result: 0, sum:parseInt(query.sum), bin:'030213500928', comment: 'Pay item found'};
   }
 
