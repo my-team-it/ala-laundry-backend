@@ -1,6 +1,8 @@
 const transactionService = require('../services/TransactionService');
 const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
+const dateTime = require('../utils/DateTime');
+
 
 const list_of_modes = ['"Іш киім" режимі|Режим "Постельное белье"','"Түсті" режимі|Режим "Цветной"','"Назік" режимі|Режим "Деликатный"','"Аралас" режимі|Режим "Смешанный"','"Жылдам" режимі|Режим "Быстрый"','"Мақта" режимі|Режим "Хлопок"','"Эко" режимі|Режим "Эко"','"Синтетикалық" режимі|Режим "Синтетический"','"Ысқылау" режимі|Режим "Ополаскивание"','"Ағызу" режимі|Режим "Слив"','"Барабанды тазалау" режимі|Режим "Очистка барабана"'];
 const list_of_prices = [500,500,500,500,500,400,500,1200,500,300,300,700];
@@ -16,7 +18,6 @@ function generate_id() {
 }
 
 async function check(query) {
-  console.log(query);
   const order = await orderService.getOrderById(query.account);
 
   if (order.payment_status == 'paid') {
@@ -38,7 +39,6 @@ async function check(query) {
 }
 
 async function pay(query) {
-  console.log(query)
   const order = await orderService.getOrderById(query.account);
   const prv_txn_id = generate_id();
   
@@ -55,8 +55,10 @@ async function pay(query) {
 }
 
 exports.getAllOrders = async (req, res) => {
+  console.log(dateTime.getDateTime() + "| Request:" + req);
   try {
     const orders = await orderService.getAllOrders();
+    console.log(dateTime.getDateTime() + "| Retrieve all orders:" + orders);
     res.json({ data: orders, status: 'success' });
   } catch (err) {
     console.error(err.message)
@@ -65,20 +67,23 @@ exports.getAllOrders = async (req, res) => {
 };
  
 exports.createOrder = async (req, res) => {
+  console.log(dateTime.getDateTime() + "| Request:" + req);
   try {
     req.query.payment_status = 'unpaid';
     req.query.machine_status = 0;
     const order = await orderService.createOrder(req.query);
-    //res.json({ data: order, status: 'success'});
-    res.redirect('http://207.154.225.108/')
+    console.log(dateTime.getDateTime() + "| Create order:" + order);
+    res.json({ data: order, status: 'success'});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
  
 exports.getOrderById = async (req, res) => {
+  console.log(dateTime.getDateTime() + "| Request:" + req);
   try {
     const order = await orderService.getOrderById(req.params.id);
+    console.log(dateTime.getDateTime() + "| Retrieve order:" + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -86,8 +91,10 @@ exports.getOrderById = async (req, res) => {
 };
  
 exports.updateOrder = async (req, res) => {
+  console.log(dateTime.getDateTime() + "| Request:" + req);
   try {
     const order = await orderService.updateOrder(req.params.id, req.query);
+    console.log(dateTime.getDateTime() + "| Update order:" + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -95,8 +102,10 @@ exports.updateOrder = async (req, res) => {
 };
  
 exports.deleteOrder = async (req, res) => {
+  console.log(dateTime.getDateTime() + "| Request:" + req);
   try {
     const order = await orderService.deleteOrder(req.params.id);
+    console.log(dateTime.getDateTime() + "| Delete order:" + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -104,30 +113,33 @@ exports.deleteOrder = async (req, res) => {
 };
 
 exports.checkOrderById = async (req, res) => {
+  let json;
   try {
-    const order = await orderService.getOrderById(req.query.account);
-
-    let json;
-
+    console.log(dateTime.getDateTime() + "| Request:" + req);
     switch (req.query.command) {
       case 'check' : json = await check(req.query);break;
-      case 'pay' : json = await pay(req.query, order.sum);break;
+      case 'pay' : json = await pay(req.query);break;
       default: json = { txn_id: req.query.txn_id, result: 1, comment: 'Command not found' };
     }
-
-    res.json(json);
-
   } catch (err) {
-    console.log(err)
-    res.json({ txn_id: req.query.txn_id, result: 1, comment: 'Error during processing' });
+    console.error(err);
+    json = { txn_id: req.query.txn_id, result: 1, comment: 'Error during processing' };
+  } finally {
+    console.log(dateTime.getDateTime() + "| Response:" + res)
+    res.json(json);
   }
 }
 
 exports.get_price = async (req, res) => {
+  let json;
+  console.log(dateTime.getDateTime() + "| Request:" + req)
   try {
-    res.json({sum:list_of_prices[req.query.service_id]});
+    json = {sum:list_of_prices[req.query.service_id]};
   } catch (err) {
-    console.log(err)
-    res.json({comment: 'Error during processing' });
+    console.error(err)
+    json = { result: 1, comment: 'Service not found' };
+  } finally {
+    console.log(dateTime.getDateTime() + "| Response:" + res)
+    res.json(json);
   }
 }
