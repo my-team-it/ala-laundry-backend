@@ -44,9 +44,9 @@ async function pay(query) {
     duration: list_of_durations[service_id],
     machine_status: 1
   }
-  let orders = orderService.getAllOrders();
+  let orders = await orderService.getAllOrders();
   let id;
-
+  
   if (orders[0].machine_id == orderJson.machine_id) {
     id = order._id;
   }
