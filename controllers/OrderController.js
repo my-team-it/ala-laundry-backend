@@ -47,11 +47,14 @@ async function pay(query) {
   let orders = orderService.getAllOrders();
   let id;
 
-  for (const order in orders) {  
-    if (order.machine_id == orderJson.machine_id) {
-      id = order._id;
-    }
+  if (orders[0].machine_id == orderJson.machine_id) {
+    id = order._id;
   }
+
+  if (orders[1].machine_id == orderJson.machine_id) {
+    id = order._id;
+  }
+
   if (list_of_prices[service_id] == orderJson.sum) {
     const order = await orderService.updateOrder(id, orderJson);
     console.log(dateTime.getDateTime() + "| Update order:" + order);
