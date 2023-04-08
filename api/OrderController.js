@@ -32,9 +32,9 @@ async function isOrderPaid(query) {
     id = orders[1]._id;
   }
   const order = await orderService.getOrderById(id);
-  // if (order.payment_status === 'paid') {
-  //   return -1;
-  // }
+  if (order.payment_status === 'paid') {
+    return -1;
+  }
 
   return order;
 }
@@ -81,6 +81,7 @@ async function pay(query) {
 
   let order = await isOrderPaid(query);
   console.log(order);
+
   if (order === -1) {
     return {
       txn_id: query.txn_id,
