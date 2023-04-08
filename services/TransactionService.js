@@ -1,29 +1,32 @@
-const TransactionModel = require('../models/Transaction');
- 
+const TransactionModel = require('../models/Transaction')
+
 exports.getAllTransaction = async () => {
-  return await TransactionModel.find();
-};
- 
+  return await TransactionModel.find()
+}
+
 exports.createTransaction = async (Transaction) => {
-  return await TransactionModel.create(Transaction);
-};
+  return await TransactionModel.create(Transaction)
+}
 
 exports.getTransactionById = async (id) => {
-  return await TransactionModel.findById(id);
-};
+  return await TransactionModel.findById(id)
+}
 
-exports.getTransactionByPrvTxnId = async (prv_txn_id) => {
-  return await TransactionModel.findOne({prv_txn_id:prv_txn_id}, function (err, result) {
-    if (!result) {
-      return null;
+exports.getTransactionByPrvTxnId = async (prvTxnId) => {
+  return await TransactionModel.findOne(
+    { prv_txn_id: prvTxnId },
+    function (_err, result) {
+      if (!result) {
+        return null
+      }
     }
-  }).clone();
-};
- 
+  ).clone()
+}
+
 exports.updateTransaction = async (id, Transaction) => {
-  return await TransactionModel.findByIdAndUpdate(id, Transaction);
-};
- 
+  return await TransactionModel.findByIdAndUpdate(id, Transaction)
+}
+
 exports.deleteTransaction = async (id) => {
-  return await TransactionModel.findByIdAndDelete(id);
-};
+  return await TransactionModel.findByIdAndDelete(id)
+}

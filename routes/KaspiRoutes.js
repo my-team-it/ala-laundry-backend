@@ -1,12 +1,9 @@
-const express = require('express');
-const {
-  checkOrderById,
-  get_price,
-} = require('../controllers/OrderController');
+const express = require('express')
+const { checkOrderById, getPrice } = require('../api/OrderController')
 
-const router = express.Router();
- 
-router.route('/payment').get(checkOrderById);
-router.route('/get_price').get(get_price);
+const router = express.Router()
 
-module.exports = router;
+router.route('/payment').get(checkOrderById)
+router.route('/get_price').get(getPrice)
+
+module.exports = router

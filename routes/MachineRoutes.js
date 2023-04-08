@@ -1,12 +1,19 @@
+/* eslint-disable semi */
 const express = require('express');
 const {
-  machine_off,
-  machine_on
-} = require('../controllers/MachineController');
+  machineOff,
+  machineOn,
+  machine,
+  adminModeOn,
+  adminModeOff
+} = require('../api/MachineController');
 
 const router = express.Router();
- 
-router.route('/on/:id').get(machine_on);
-router.route('/off/:id').get(machine_off);
- 
+
+router.route('/on/:id').get(machineOn);
+router.route('/off/:id').get(machineOff);
+router.route('/admin/on/:id').get(adminModeOn);
+router.route('/admin/off/:id').get(adminModeOff);
+router.route('/:id').get(machine);
+
 module.exports = router;

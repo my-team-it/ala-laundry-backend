@@ -1,4 +1,5 @@
-const firebase = require('firebase')
+/* eslint-disable semi */
+const firebase = require('firebase');
 
 const firebaseConfig = {
   apiKey: 'AIzaSyB95Rp0pvwjcFi0dHEvvrRh0svfTkuL7MA',
@@ -10,32 +11,53 @@ const firebaseConfig = {
   measurementId: 'G-BLBDRXZKGE'
 };
 
-firebase.initializeApp(firebaseConfig)
+firebase.initializeApp(firebaseConfig);
 
-module.exports.writeData = async (data, machine_id) => {
-    
-    try {
-      let washingMachinesInputRef = firebase.database().ref(`${machine_id}/input`);
-      washingMachinesInputRef.update({
-        mode: data.mode,
-        trigger: data.machine_status,
-      });
+module.exports.writeData = async (data, machineId) => {
+  try {
+    const washingMachinesInputRef = firebase
+      .database()
+      .ref(`${machineId}/input`);
+    washingMachinesInputRef.update({
+      mode: data.mode,
+      trigger: data.machine_status
+    });
 
-      let washingMachinesOutputRef = firebase.database().ref(`${machine_id}/output`);
-      washingMachinesOutputRef.update({
-        duration: data.duration,
-      })
-    } catch (err) {
-      console.log(err);
-    }
-    
+    const washingMachinesOutputRef = firebase
+      .database()
+      .ref(`${machineId}/output`);
+    washingMachinesOutputRef.update({
+      duration: data.duration
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-// module.exports.readData = async (machine_id) => {
-//   var rootRef = firebase.database().ref();
-//   rootRef.once("value")
-//     .then(function(snapshot) {
-//       var key = snapshot.key; // null
-//       var childKey = snapshot.child(`/{}/ad`).key; // "ada"
-//     });
-// };
+module.exports.writeAdminData = async (data, machineId) => {
+  try {
+    const washingMachinesInputRef = firebase
+      .database()
+      .ref(`${machineId}/input`);
+    washingMachinesInputRef.update({
+      admin: data.admin
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+module.exports.readData = async (machineId) => {
+  try {
+    const washingMachinesInputRef = firebase.database().ref(`${machineId}`);
+    const input = await washingMachinesInputRef.once('value');
+
+    if (!input.exists()) {
+      throw new Error('Machine is not found');
+    }
+
+    return input;
+  } catch (_err) {
+    return { error: _err.message };
+  }
+};
