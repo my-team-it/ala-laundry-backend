@@ -61,7 +61,7 @@ async function check(query) {
     fields: {
       services: priceList
     },
-    bin: '030213500928',
+    bin: '870430301264',
     comment: 'Item found'
   };
   return response;
@@ -88,7 +88,7 @@ async function pay(query) {
       prv_txn_id: prvTxnId,
       result: 5,
       sum: parseInt(query.sum),
-      bin: '030213500928',
+      bin: '870430301264',
       comment: 'Machine is not ready'
     };
   }
@@ -115,7 +115,7 @@ async function pay(query) {
       prv_txn_id: prvTxnId,
       result: 0,
       sum: parseInt(query.sum),
-      bin: '030213500928',
+      bin: '870430301264',
       comment: 'Pay item found'
     };
   }
@@ -125,7 +125,7 @@ async function pay(query) {
     prv_txn_id: prvTxnId,
     result: 1,
     sum: parseInt(query.sum),
-    bin: '030213500928',
+    bin: '870430301264',
     comment: 'Pay item sum incorrect'
   };
 }
