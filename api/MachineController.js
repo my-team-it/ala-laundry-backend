@@ -4,7 +4,7 @@ const firebaseService = require('../services/FirebaseService');
 exports.machineOn = async (req, res) => {
   try {
     const order = {
-      mode: req.query.mode,
+      mode: parseInt(req.query.mode),
       machine_status: 1,
       machine_id: req.params.id,
       duration: Math.floor(Math.random() * Math.pow(10, 3))
