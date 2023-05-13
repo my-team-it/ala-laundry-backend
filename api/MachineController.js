@@ -20,6 +20,7 @@ exports.machineOn = async (req, res) => {
 exports.machineOff = async (req, res) => {
   try {
     const order = {
+      mode: 7,
       machine_status: 0,
       machine_id: req.params.id,
       duration: Math.floor(Math.random() * Math.pow(10, 3))

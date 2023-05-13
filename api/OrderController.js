@@ -6,6 +6,7 @@ const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 
 const listOfModes = [
+  '"Гигиеналық бумен жуу" режимі|Режим "Гигиеническая стирка паром"',
   '"Іш киім" режимі|Режим "Постельное белье"',
   '"Түсті" режимі|Режим "Цветной"',
   '"Назік" режимі|Режим "Деликатный"',
