@@ -18,8 +18,8 @@ const listOfModes = [
   '"Ағызу" режимі|Режим "Слив"',
   '"Барабанды тазалау" режимі|Режим "Очистка барабана"'
 ];
-const listOfPrices = [500, 500, 500, 500, 500, 400, 500, 1200, 500, 300, 1];
-const listOfDurations = [500, 500, 500, 500, 500, 400, 500, 1200, 500, 300, 1];
+const listOfPrices = [300, 300, 300, 300, 300, 300, 300, 300, 300, 10, 10];
+const listOfDurations = [500, 500, 500, 500, 500, 400, 500, 1200, 500, 10, 10];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
