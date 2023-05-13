@@ -25,8 +25,8 @@ async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
   let id;
   for (let i = 0; i < 5; i++) {
-    if (orders[0].machine_id === query.account) {
-      id = orders[0]._id;
+    if (orders[i].machine_id === query.account) {
+      id = orders[i]._id;
     }
   }
   const order = await orderService.getOrderById(id);
