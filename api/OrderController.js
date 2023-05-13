@@ -19,7 +19,19 @@ const listOfModes = [
   '"Барабанды тазалау" режимі|Режим "Очистка барабана"'
 ];
 const listOfPrices = [300, 300, 300, 300, 300, 300, 300, 300, 300, 10, 0];
-const listOfDurations = [500, 500, 500, 500, 500, 400, 500, 1200, 500, 10, 10];
+const listOfDurations = [
+  150 * 60 * 1000,
+  95 * 60 * 1000,
+  53 * 60 * 1000,
+  75 * 60 * 1000,
+  25 * 60 * 1000,
+  100 * 60 * 1000,
+  330 * 60 * 1000,
+  75 * 60 * 1000,
+  30 * 60 * 1000,
+  25 * 60 * 1000,
+  90 * 60 * 1000
+];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -110,7 +122,7 @@ async function pay(query) {
         { machine_status: 0, mode: 7, duration: 0 },
         unpaidOrder.machine_id
       );
-    }, 60 * 1000);
+    }, listOfDurations[serviceId]);
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
