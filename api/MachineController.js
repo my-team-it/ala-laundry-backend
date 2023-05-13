@@ -19,10 +19,7 @@ exports.machineOn = async (req, res) => {
 
 exports.machineOff = async (req, res) => {
   try {
-    const readFireBase = await firebaseService.readData(req.params.id);
-    console.log(readFireBase);
     const order = {
-      mode: readFireBase.input.mode,
       machine_status: 0,
       machine_id: req.params.id,
       duration: Math.floor(Math.random() * Math.pow(10, 3))

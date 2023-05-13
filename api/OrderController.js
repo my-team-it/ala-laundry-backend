@@ -107,7 +107,7 @@ async function pay(query) {
         payment_status: 'unpaid'
       });
       await firebaseService.writeData(
-        { machine_status: 0, mode: 0, duration: 0 },
+        { machine_status: 0, duration: 0 },
         unpaidOrder.machine_id
       );
     }, 1 * 60 * 60 * 1000);

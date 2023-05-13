@@ -15,14 +15,26 @@ firebase.initializeApp(firebaseConfig);
 
 module.exports.writeData = async (data, machineId) => {
   try {
-    const washingMachinesInputRef = firebase
+    const washingMachinesInputRef1 = firebase
       .database()
       .ref(`${machineId}/input`);
-    washingMachinesInputRef.update({
-      mode: data.mode,
+    washingMachinesInputRef1.update({
+      mode: data.mode
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  try {
+    const washingMachinesInputRef2 = firebase
+      .database()
+      .ref(`${machineId}/input`);
+    washingMachinesInputRef2.update({
       trigger: data.machine_status
     });
-
+  } catch (err) {
+    console.log(err);
+  }
+  try {
     const washingMachinesOutputRef = firebase
       .database()
       .ref(`${machineId}/output`);
