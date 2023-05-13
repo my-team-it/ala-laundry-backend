@@ -210,7 +210,8 @@ exports.checkOrderById = async (req, res) => {
     json = {
       txn_id: req.query.txn_id,
       result: 1,
-      comment: 'Error during processing'
+      comment: 'Error during processing',
+      desc: err
     };
   } finally {
     console.log(dateTime.getDateTime() + '| Response:' + json);
