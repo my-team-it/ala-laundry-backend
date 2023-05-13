@@ -32,6 +32,9 @@ async function isOrderPaid(query) {
     id = orders[1]._id;
   }
   const order = await orderService.getOrderById(id);
+  console.log('-----------');
+  console.log(order);
+  console.log('-----------');
   if (order.payment_status === 'paid') {
     return -1;
   }
