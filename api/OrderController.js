@@ -24,12 +24,10 @@ const listOfDurations = [500, 500, 500, 500, 500, 400, 500, 1200, 500, 10, 10];
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
   let id;
-  if (orders[0].machine_id === query.account) {
-    id = orders[0]._id;
-  }
-
-  if (orders[1].machine_id === query.account) {
-    id = orders[1]._id;
+  for (let i = 0; i < 5; i++) {
+    if (orders[0].machine_id === query.account) {
+      id = orders[0]._id;
+    }
   }
   const order = await orderService.getOrderById(id);
   console.log('-----------');
