@@ -20,6 +20,7 @@ exports.machineOn = async (req, res) => {
 exports.machineOff = async (req, res) => {
   try {
     const readFireBase = await firebaseService.readData(req.params.id);
+    print(readFireBase);
     const order = {
       mode: readFireBase.input.mode,
       machine_status: 0,
