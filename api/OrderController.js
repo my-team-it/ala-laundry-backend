@@ -6,7 +6,6 @@ const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 
 const listOfModes = [
-  '"Гигиеналық бумен жуу" режимі|Режим "Гигиеническая стирка паром"',
   '"Іш киім" режимі|Режим "Постельное белье"',
   '"Түсті" режимі|Режим "Цветной"',
   '"Назік" режимі|Режим "Деликатный"',
@@ -99,7 +98,7 @@ async function pay(query) {
     order = await orderService.updateOrder(order._id, orderJson);
     console.log(dateTime.getDateTime() + '| Update order:' + order);
     await firebaseService.writeData(
-      { machine_status: 1, mode: serviceId, duration: 1 },
+      { machine_status: 1, mode: serviceId + 2, duration: 1 },
       order.machine_id
     );
     setTimeout(async () => {
@@ -108,10 +107,10 @@ async function pay(query) {
         payment_status: 'unpaid'
       });
       await firebaseService.writeData(
-        { machine_status: 0, duration: 0 },
+        { machine_status: 0, mode: 7, duration: 0 },
         unpaidOrder.machine_id
       );
-    }, 1 * 60 * 60 * 1000);
+    }, 60 * 1000);
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
