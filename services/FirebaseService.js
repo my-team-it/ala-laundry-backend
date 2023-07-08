@@ -29,7 +29,7 @@ module.exports.writeData = async (data, machineId) => {
       .database()
       .ref(`${machineId}/input`);
     washingMachinesInputRef2.update({
-      trigger: data.machine_status
+      admin: data.machine_status
     });
   } catch (err) {
     console.log(err);
