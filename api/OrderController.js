@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 /* eslint-disable space-before-function-paren */
 /* eslint-disable semi */
 const transactionService = require('../services/TransactionService');
