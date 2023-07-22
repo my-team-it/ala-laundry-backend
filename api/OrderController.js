@@ -57,11 +57,12 @@ async function check(query) {
 
   const order = await isOrderPaid(query);
   console.log(order);
-  const firebase_var = await fetch(
+  const firebaseVar = await fetch(
     'http://payments.ala-laundry.com/api/machine/id' + query.account
   );
-  const json = await firebase_var.json();
-  const isDoorOpen = json.data.output.door_status;
+  const json = await firebaseVar.json();
+  const machine = json.data;
+  const isDoorOpen = machine.output.door_status;
   if (order === -1 || isDoorOpen) {
     return {
       txn_id: query.txn_id,
