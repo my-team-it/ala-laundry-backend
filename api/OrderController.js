@@ -58,7 +58,7 @@ async function check(query) {
   const order = await isOrderPaid(query);
   console.log(order);
   const firebaseVar = await fetch(
-    'http://localhost/api/machine/' + query.account
+    'http://payments.ala-laundry.com/api/machine/' + query.account
   );
   const json = await firebaseVar.json();
   console.log(json);
