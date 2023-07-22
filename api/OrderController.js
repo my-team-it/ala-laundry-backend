@@ -58,9 +58,10 @@ async function check(query) {
   const order = await isOrderPaid(query);
   console.log(order);
   const firebaseVar = await fetch(
-    'http://payments.ala-laundry.com/api/machine/id' + query.account
+    'http://localhost/api/machine/' + query.account
   );
   const json = await firebaseVar.json();
+  console.log(json);
   const machine = json.data;
   const isDoorOpen = machine.output.door_status;
   if (order === -1 || isDoorOpen) {
@@ -111,17 +112,17 @@ async function pay(query) {
   }
 
   if (listOfPrices[serviceId] === orderJson.sum) {
-    order = await orderService.updateOrder(order._id, orderJson);
-    console.log(dateTime.getDateTime() + '| Update order:' + order);
+    const orderO = await orderService.updateOrder(order._id, orderJson);
+    console.log(dateTime.getDateTime() + '| Update order:' + orderO);
     await firebaseService.writeData(
       { machine_status: 1, mode: serviceId + 2, duration: 1 },
-      order.machine_id
+      orderO.machine_id
     );
     setInterval(async () => {
       const firebaseStatus = await firebaseService.readData(query.txn_id);
       const isDoorOpen = firebaseStatus.output.door_status;
       if (!isDoorOpen) {
-        const unpaidOrder = await orderService.updateOrder(order._id, {
+        const unpaidOrder = await orderService.updateOrder(orderO._id, {
           machine_status: 0,
           payment_status: 'unpaid'
         });
