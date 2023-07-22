@@ -58,8 +58,7 @@ async function check(query) {
   const order = await isOrderPaid(query);
   console.log(order);
   const firebaseStatus = await firebaseService.readData(query.account);
-  const data = { data: firebaseStatus };
-  console.log(data);
+  console.log(firebaseStatus.json());
   const isDoorOpen = data.data.output.door_status;
   if (order === -1 || isDoorOpen) {
     return {
