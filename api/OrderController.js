@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 /* eslint-disable space-before-function-paren */
 /* eslint-disable semi */
 const transactionService = require('../services/TransactionService');
@@ -58,13 +57,9 @@ async function check(query) {
 
   const order = await isOrderPaid(query);
   console.log(order);
-  const firebaseVar = await fetch(
-    'http://payments.ala-laundry.com/api/machine/' + query.account
-  );
-  const json = await firebaseVar.json();
-  console.log(json);
-  const machine = json.data;
-  const isDoorOpen = machine.output.door_status;
+  const result = await firebaseService.readData(order.machine_id);
+  const json = result.toJSON();
+  const isDoorOpen = json.output.door_status;
   if (order === -1 || isDoorOpen) {
     return {
       txn_id: query.txn_id,
