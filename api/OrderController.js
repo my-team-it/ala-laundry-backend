@@ -57,9 +57,11 @@ async function check(query) {
 
   const order = await isOrderPaid(query);
   console.log(order);
-  const firebaseStatus = await firebaseService.readData(query.account);
-  console.log(firebaseStatus.json());
-  const isDoorOpen = data.data.output.door_status;
+  const firebase_var = await fetch(
+    'http://payments.ala-laundry.com/api/machine/id' + query.account
+  );
+  const json = await firebase_var.json();
+  const isDoorOpen = json.data.output.door_status;
   if (order === -1 || isDoorOpen) {
     return {
       txn_id: query.txn_id,
