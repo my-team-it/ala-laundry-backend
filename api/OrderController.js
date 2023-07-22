@@ -19,19 +19,6 @@ const listOfModes = [
   '"Барабанды тазалау" режимі|Режим "Очистка барабана"'
 ];
 const listOfPrices = [300, 300, 300, 300, 300, 300, 300, 300, 300, 10, 1];
-const listOfDurations = [
-  150 * 60 * 1000,
-  95 * 60 * 1000,
-  53 * 60 * 1000,
-  75 * 60 * 1000,
-  25 * 60 * 1000,
-  100 * 60 * 1000,
-  330 * 60 * 1000,
-  75 * 60 * 1000,
-  30 * 60 * 1000,
-  25 * 60 * 1000,
-  90 * 60 * 1000
-];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -68,6 +55,18 @@ async function check(query) {
     id: index
   }));
 
+  const order = await isOrderPaid(query);
+  console.log(order);
+  const firebaseStatus = await firebaseService.readData(query.txn_id);
+  const isDoorOpen = firebaseStatus.output.door_status;
+  if (order === -1 || isDoorOpen) {
+    return {
+      txn_id: query.txn_id,
+      result: 5,
+      bin: '870430301264',
+      comment: 'Machine is not ready'
+    };
+  }
   const response = {
     txn_id: query.txn_id,
     result: 0,
@@ -88,14 +87,15 @@ async function pay(query) {
     payment_status: 'paid',
     sum: parseInt(query.sum),
     mode: serviceId,
-    duration: listOfDurations[serviceId],
     machine_status: 1
   };
 
-  let order = await isOrderPaid(query);
+  const order = await isOrderPaid(query);
   console.log(order);
+  const firebaseStatus = await firebaseService.readData(query.txn_id);
+  const isDoorOpen = firebaseStatus.output.door_status;
 
-  if (order === -1) {
+  if (order === -1 || isDoorOpen) {
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
@@ -113,16 +113,20 @@ async function pay(query) {
       { machine_status: 1, mode: serviceId + 2, duration: 1 },
       order.machine_id
     );
-    setTimeout(async () => {
-      const unpaidOrder = await orderService.updateOrder(order._id, {
-        machine_status: 0,
-        payment_status: 'unpaid'
-      });
-      await firebaseService.writeData(
-        { machine_status: 0, mode: 7, duration: 0 },
-        unpaidOrder.machine_id
-      );
-    }, listOfDurations[serviceId]);
+    setInterval(async () => {
+      const firebaseStatus = await firebaseService.readData(query.txn_id);
+      const isDoorOpen = firebaseStatus.output.door_status;
+      if (!isDoorOpen) {
+        const unpaidOrder = await orderService.updateOrder(order._id, {
+          machine_status: 0,
+          payment_status: 'unpaid'
+        });
+        await firebaseService.writeData(
+          { machine_status: 0, mode: 7, duration: 0 },
+          unpaidOrder.machine_id
+        );
+      }
+    }, 30 * 60 * 1000);
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
@@ -233,6 +237,20 @@ exports.checkOrderById = async (req, res) => {
 };
 
 exports.getPrice = async (req, res) => {
+  let json;
+  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
+  try {
+    json = { sum: listOfPrices[req.query.service_id] };
+  } catch (err) {
+    console.error(err);
+    json = { result: 1, comment: 'Service not found' };
+  } finally {
+    console.log(dateTime.getDateTime() + '| Response:' + json);
+    res.json(json);
+  }
+};
+
+exports.getDuration = async (req, res) => {
   let json;
   console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
