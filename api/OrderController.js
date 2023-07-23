@@ -98,7 +98,7 @@ async function pay(query) {
       { machine_status: 1, mode: serviceId + 2, duration: 1 },
       orderO.machine_id
     );
-    setInterval(async () => {
+    setInterval(async (query, orderO) => {
       const firebaseStatus = await firebaseService.readData(query.txn_id);
       const isDoorOpen = firebaseStatus.output.door_status;
       if (!isDoorOpen) {
