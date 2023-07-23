@@ -32,9 +32,6 @@ async function isOrderPaid(query) {
   console.log('-----------');
   console.log(order);
   console.log('-----------');
-  if (order.payment_status === 'paid') {
-    return -1;
-  }
 
   return order;
 }
@@ -61,7 +58,7 @@ async function check(query) {
   const json = result.toJSON();
   const isDoorOpen = json.output.door_status;
 
-  if (order === -1 || isDoorOpen) {
+  if (order.payment_status === 'paid' || isDoorOpen) {
     return {
       txn_id: query.txn_id,
       result: 5,
