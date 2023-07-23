@@ -94,10 +94,9 @@ async function pay(query) {
   if (listOfPrices[serviceId] === orderJson.sum) {
     const orderO = await orderService.updateOrder(order._id, orderJson);
     console.log(dateTime.getDateTime() + '| Update order:' + orderO);
-    await firebaseService.writeData(
-      { machine_status: 1, mode: serviceId + 2, duration: 1 },
-      orderO.machine_id
-    );
+    await firebaseService.writeData({ machine_status: 1 }, orderO.machine_id);
+    await firebaseService.writeAdminData({ admin: 1 }, orderO.machine_id);
+
     setInterval(async (query, orderO) => {
       const firebaseStatus = await firebaseService.readData(query.txn_id);
       const isDoorOpen = firebaseStatus.output.door_status;
@@ -107,7 +106,11 @@ async function pay(query) {
           payment_status: 'unpaid'
         });
         await firebaseService.writeData(
-          { machine_status: 0, mode: 7, duration: 0 },
+          { machine_status: 0 },
+          unpaidOrder.machine_id
+        );
+        await firebaseService.writeAdminData(
+          { admin: 0 },
           unpaidOrder.machine_id
         );
       }
