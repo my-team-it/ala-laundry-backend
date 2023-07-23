@@ -5,20 +5,8 @@ const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 
-const listOfModes = [
-  '"Іш киім" режимі|Режим "Постельное белье"',
-  '"Түсті" режимі|Режим "Цветной"',
-  '"Назік" режимі|Режим "Деликатный"',
-  '"Аралас" режимі|Режим "Смешанный"',
-  '"Жылдам" режимі|Режим "Быстрый"',
-  '"Мақта" режимі|Режим "Хлопок"',
-  '"Эко" режимі|Режим "Эко"',
-  '"Синтетикалық" режимі|Режим "Синтетический"',
-  '"Ысқылау" режимі|Режим "Ополаскивание"',
-  '"Ағызу" режимі|Режим "Слив"',
-  '"Барабанды тазалау" режимі|Режим "Очистка барабана"'
-];
-const listOfPrices = [300, 300, 300, 300, 300, 300, 300, 300, 300, 10, 1];
+const listOfModes = ['Кір жуу|Стирка'];
+const listOfPrices = [300];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -97,24 +85,29 @@ async function pay(query) {
     await firebaseService.writeData({ machine_status: 1 }, orderO.machine_id);
     await firebaseService.writeAdminData({ admin: 1 }, orderO.machine_id);
 
-    setInterval(async (query, orderO) => {
-      const firebaseStatus = await firebaseService.readData(query.txn_id);
-      const isDoorOpen = firebaseStatus.output.door_status;
-      if (!isDoorOpen) {
-        const unpaidOrder = await orderService.updateOrder(orderO._id, {
-          machine_status: 0,
-          payment_status: 'unpaid'
-        });
-        await firebaseService.writeData(
-          { machine_status: 0 },
-          unpaidOrder.machine_id
-        );
-        await firebaseService.writeAdminData(
-          { admin: 0 },
-          unpaidOrder.machine_id
-        );
-      }
-    }, 2 * 60 * 1000, query, orderO);
+    setInterval(
+      async (query, orderO) => {
+        const firebaseStatus = await firebaseService.readData(query.txn_id);
+        const isDoorOpen = firebaseStatus.output.door_status;
+        if (!isDoorOpen) {
+          const unpaidOrder = await orderService.updateOrder(orderO._id, {
+            machine_status: 0,
+            payment_status: 'unpaid'
+          });
+          await firebaseService.writeData(
+            { machine_status: 0 },
+            unpaidOrder.machine_id
+          );
+          await firebaseService.writeAdminData(
+            { admin: 0 },
+            unpaidOrder.machine_id
+          );
+        }
+      },
+      2 * 60 * 1000,
+      query,
+      orderO
+    );
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
