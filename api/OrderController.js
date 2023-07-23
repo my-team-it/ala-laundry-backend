@@ -60,6 +60,7 @@ async function check(query) {
   const result = await firebaseService.readData(order.machine_id);
   const json = result.toJSON();
   const isDoorOpen = json.output.door_status;
+
   if (order === -1 || isDoorOpen) {
     return {
       txn_id: query.txn_id,
@@ -92,20 +93,6 @@ async function pay(query) {
   };
 
   const order = await isOrderPaid(query);
-  console.log(order);
-  const firebaseStatus = await firebaseService.readData(query.txn_id);
-  const isDoorOpen = firebaseStatus.output.door_status;
-
-  if (order === -1 || isDoorOpen) {
-    return {
-      txn_id: query.txn_id,
-      prv_txn_id: prvTxnId,
-      result: 5,
-      sum: parseInt(query.sum),
-      bin: '870430301264',
-      comment: 'Machine is not ready'
-    };
-  }
 
   if (listOfPrices[serviceId] === orderJson.sum) {
     const orderO = await orderService.updateOrder(order._id, orderJson);
