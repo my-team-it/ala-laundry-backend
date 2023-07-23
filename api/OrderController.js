@@ -111,7 +111,7 @@ async function pay(query) {
           unpaidOrder.machine_id
         );
       }
-    }, 15 * 60 * 1000);
+    }, 2 * 60 * 1000);
     return {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
