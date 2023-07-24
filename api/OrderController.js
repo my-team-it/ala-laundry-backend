@@ -6,7 +6,7 @@ const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 
 const listOfModes = ['Кір жуу|Стирка'];
-const listOfPrices = [300];
+const listOfPrices = [400];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -86,11 +86,13 @@ async function pay(query) {
     await firebaseService.writeAdminData({ admin: 1 }, orderO.machine_id);
 
     setInterval(
-      async (query, orderO) => {
-        const firebaseStatus = await firebaseService.readData(query.txn_id);
+      async (data1, data2) => {
+        console.log(data1);
+        console.log(data2);
+        const firebaseStatus = await firebaseService.readData(data1.txn_id);
         const isDoorOpen = firebaseStatus.output.door_status;
         if (!isDoorOpen) {
-          const unpaidOrder = await orderService.updateOrder(orderO._id, {
+          const unpaidOrder = await orderService.updateOrder(data2._id, {
             machine_status: 0,
             payment_status: 'unpaid'
           });
