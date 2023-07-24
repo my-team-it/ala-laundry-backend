@@ -87,8 +87,8 @@ async function pay(query) {
 
     setInterval(
       async (data1, data2) => {
-        console.log(data1);
-        console.log(data2);
+        console.log('Data1: ' + data1);
+        console.log('Data2: ' + data2);
         const firebaseStatus = await firebaseService.readData(data1.txn_id);
         const isDoorOpen = firebaseStatus.output.door_status;
         if (!isDoorOpen) {
