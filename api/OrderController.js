@@ -89,7 +89,7 @@ async function pay(query) {
       async (data1, data2) => {
         console.log('Data1: ' + data1);
         console.log('Data2: ' + data2);
-        const firebaseStatus = await firebaseService.readData(data1.txn_id);
+        const firebaseStatus = await firebaseService.readData(data1.account);
         const json = firebaseStatus.toJSON();
         const isDoorOpen = json.output.door_status;
         if (!isDoorOpen) {
