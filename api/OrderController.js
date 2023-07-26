@@ -92,6 +92,9 @@ async function pay(query) {
         const firebaseStatus = await firebaseService.readData(data1.account);
         const json = firebaseStatus.toJSON();
         const isDoorOpen = json.output.door_status;
+        console.log('is:' + isDoorOpen);
+        console.log('is!:' + !isDoorOpen);
+
         if (!isDoorOpen) {
           const unpaidOrder = await orderService.updateOrder(data2._id, {
             machine_status: 0,
@@ -107,7 +110,7 @@ async function pay(query) {
           );
         }
       },
-      3 * 60 * 1000,
+      1000,
       query,
       orderO
     );
