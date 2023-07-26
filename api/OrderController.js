@@ -96,8 +96,8 @@ async function pay(query) {
         console.log('is!:' + !isDoorOpen);
 
         if (!isDoorOpen) {
-          setTimeout(async () {
-            const unpaidOrder = await orderService.updateOrder(data2._id, {
+          setTimeout(async () => {
+            await orderService.updateOrder(data2._id, {
               machine_status: 0,
               payment_status: 'unpaid'
             });
@@ -106,10 +106,7 @@ async function pay(query) {
             { machine_status: 0 },
             data2.machine_id
           );
-          await firebaseService.writeAdminData(
-            { admin: 0 },
-            data2.machine_id
-          );
+          await firebaseService.writeAdminData({ admin: 0 }, data2.machine_id);
         }
       },
       3 * 60 * 1000,
