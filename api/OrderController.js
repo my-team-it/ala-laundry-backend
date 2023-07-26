@@ -6,7 +6,7 @@ const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 
 const listOfModes = ['Кір жуу|Стирка'];
-const listOfPrices = [400];
+const listOfPrices = [1];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
