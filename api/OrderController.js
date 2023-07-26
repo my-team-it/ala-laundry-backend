@@ -110,7 +110,7 @@ async function pay(query) {
           );
         }
       },
-      1000,
+      3 * 60 * 1000,
       query,
       orderO
     );
