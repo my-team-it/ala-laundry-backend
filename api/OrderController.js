@@ -4,10 +4,13 @@ const transactionService = require('../services/TransactionService');
 const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
+const { count } = require('../models/Transaction');
 
 const listOfModes = ['Кір жуу|Стирка'];
 const listOfPrices = [1];
 const intervals = [0, 0, 0, 0, 0];
+const countList = [0, 0, 0, 0, 0];
+const isDoorOpen = [[], [], [], [], []];
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -86,17 +89,24 @@ async function pay(query) {
     await firebaseService.writeData({ machine_status: 1 }, orderO.machine_id);
     await firebaseService.writeAdminData({ admin: 1 }, orderO.machine_id);
 
-    intervals[parseInt(query.account)] = setInterval(
+    intervals[parseInt(query.account[2])] = setInterval(
       async (data1, data2) => {
+        let isCheck = false;
         console.log('Data1: ' + data1);
         console.log('Data2: ' + data2);
         const firebaseStatus = await firebaseService.readData(data1.account);
         const json = firebaseStatus.toJSON();
-        const isDoorOpen = json.output.door_status;
+        isDoorOpen[parseInt(data1.account[2])][
+          countList[parseInt(data1.account[2])]
+        ] = json.output.door_status;
+        countList[parseInt(data1.account[2])] += 1;
         console.log('is:' + isDoorOpen);
         console.log('is!:' + !isDoorOpen);
-
-        if (!isDoorOpen) {
+        if (countList[parseInt(data1.account[2])] >= 3) {
+          isCheck = true;
+          countList[parseInt(data1.account[2])] = 0;
+        }
+        if (isCheck && !isDoorOpen[0] && !isDoorOpen[1] && !isDoorOpen[2]) {
           await orderService.updateOrder(data2._id, {
             machine_status: 0,
             payment_status: 'unpaid'
@@ -114,7 +124,7 @@ async function pay(query) {
           await firebaseService.writeAdminData({ admin: 0 }, data2.machine_id);
         }
       },
-      3 * 60 * 1000,
+      30 * 1000,
       query,
       orderO
     );
