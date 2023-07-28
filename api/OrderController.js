@@ -11,11 +11,11 @@ const listOfPrices = [1];
 const ON = 1;
 const OFF = 0;
 
-async function isOrderPaid(query) {
+async function isOrderPaid(machineId) {
   const orders = await orderService.getAllOrders();
   let id;
   for (let i = 0; i < 5; i++) {
-    if (orders[i].machine_id === query.account) {
+    if (orders[i].machine_id === machineId) {
       id = orders[i]._id;
     }
   }
@@ -40,7 +40,7 @@ async function check(query) {
     id: index
   }));
 
-  const order = await isOrderPaid(query);
+  const order = await isOrderPaid(query.account);
 
   if (order.payment_status === 'paid') {
     return {
@@ -74,7 +74,7 @@ async function pay(query) {
     machine_status: 1
   };
 
-  const order = await isOrderPaid(query);
+  const order = await isOrderPaid(query.account);
 
   if (listOfPrices[serviceId] === parseInt(orderJson.sum)) {
     const orderO = await orderService.updateOrder(order._id, orderJson);
@@ -100,7 +100,7 @@ async function pay(query) {
 
     setInterval(
       async (machineId, orderId) => {
-        const order = await isOrderPaid(query);
+        const order = await isOrderPaid(machineId);
         if (order.payment_status === 'paid') {
           const isDoorOpenList = [];
           for (let i = 0; i < 4; i++) {
