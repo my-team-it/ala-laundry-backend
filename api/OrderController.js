@@ -13,17 +13,7 @@ const ON = 1;
 const OFF = 0;
 
 function stopInterval(machineId) {
-  console.log(
-    intervalIDs +
-      'hera iam ' +
-      intervalIDs[parseInt(machineId[2]) - 1] +
-      ' ' +
-      parseInt(machineId[2]) +
-      ' ' +
-      machineId[2]
-  );
   while (intervalIDs[parseInt(machineId[2]) - 1].length) {
-    console.log(intervalIDs + 'hera iam ');
     clearInterval(intervalIDs[parseInt(machineId[2]) - 1].pop());
   }
 }
