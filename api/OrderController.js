@@ -49,6 +49,7 @@ async function checkDoorStatus(machineId, isDoorOpenList, i, orderId) {
         await firebaseService.writeData({ machine_status: 0 }, machineId);
         await firebaseService.writeAdminData(OFF, machineId);
       }
+      isWashingStarted[parseInt(machineId)] = false;
       console.log(
         dateTime.getDateTime() + ' | Turn off for machine ' + machineId
       );
