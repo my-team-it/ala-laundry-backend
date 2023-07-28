@@ -9,6 +9,7 @@ const util = require('util');
 const listOfModes = ['Кір жуу|Стирка'];
 const listOfPrices = [1];
 const intervalIDs = [[], [], [], [], []];
+const isWashingStarted = [false, false, false, false, false];
 const ON = 1;
 const OFF = 0;
 
@@ -43,9 +44,11 @@ async function checkDoorStatus(machineId, isDoorOpenList, i, orderId) {
         machine_status: 0,
         payment_status: 'unpaid'
       });
-      await firebaseService.writeAdminData(ON, machineId);
-      await firebaseService.writeData({ machine_status: 0 }, machineId);
-      await firebaseService.writeAdminData(OFF, machineId);
+      if (!isWashingStarted[parseInt(machineId)]) {
+        await firebaseService.writeAdminData(ON, machineId);
+        await firebaseService.writeData({ machine_status: 0 }, machineId);
+        await firebaseService.writeAdminData(OFF, machineId);
+      }
       console.log(
         dateTime.getDateTime() + ' | Turn off for machine ' + machineId
       );
@@ -152,6 +155,7 @@ async function pay(query) {
             ' | Admin mode off for machine ' +
             orderO.machine_id
         );
+        isWashingStarted[parseInt(orderO.machine_id)] = true;
         await firebaseService.writeAdminData(OFF, machineId);
       },
       3.3 * 60 * 1000,
@@ -159,7 +163,12 @@ async function pay(query) {
     );
 
     intervalIDs[parseInt(orderO.machine_id[2]) - 1].push(
-      setInterval(processWashing, 1.6 * 60 * 1000, orderO.machine_id, orderO._id)
+      setInterval(
+        processWashing,
+        1.6 * 60 * 1000,
+        orderO.machine_id,
+        orderO._id
+      )
     );
     return {
       txn_id: query.txn_id,
