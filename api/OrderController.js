@@ -4,13 +4,12 @@ const transactionService = require('../services/TransactionService');
 const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
-const { count } = require('../models/Transaction');
+const util = require('util');
 
 const listOfModes = ['Кір жуу|Стирка'];
 const listOfPrices = [1];
-const intervals = [0, 0, 0, 0, 0];
-const countList = [0, 0, 0, 0, 0];
-const isDoorOpen = [[], [], [], [], []];
+const ON = 1;
+const OFF = 0;
 
 async function isOrderPaid(query) {
   const orders = await orderService.getAllOrders();
@@ -21,9 +20,6 @@ async function isOrderPaid(query) {
     }
   }
   const order = await orderService.getOrderById(id);
-  console.log('-----------');
-  console.log(order);
-  console.log('-----------');
 
   return order;
 }
@@ -45,12 +41,8 @@ async function check(query) {
   }));
 
   const order = await isOrderPaid(query);
-  console.log(order);
-  const result = await firebaseService.readData(order.machine_id);
-  const json = result.toJSON();
-  const isDoorOpen = json.output.door_status;
 
-  if (order.payment_status === 'paid' || isDoorOpen) {
+  if (order.payment_status === 'paid') {
     return {
       txn_id: query.txn_id,
       result: 5,
@@ -58,6 +50,7 @@ async function check(query) {
       comment: 'Machine is not ready'
     };
   }
+
   const response = {
     txn_id: query.txn_id,
     result: 0,
@@ -83,50 +76,92 @@ async function pay(query) {
 
   const order = await isOrderPaid(query);
 
-  if (listOfPrices[serviceId] === orderJson.sum) {
+  if (listOfPrices[serviceId] === parseInt(orderJson.sum)) {
     const orderO = await orderService.updateOrder(order._id, orderJson);
-    console.log(dateTime.getDateTime() + '| Update order:' + orderO);
     await firebaseService.writeData({ machine_status: 1 }, orderO.machine_id);
-    await firebaseService.writeAdminData({ admin: 1 }, orderO.machine_id);
-
-    intervals[parseInt(query.account[2])] = setInterval(
-      async (data1, data2) => {
-        let isCheck = false;
-        console.log('Data1: ' + data1);
-        console.log('Data2: ' + data2);
-        const firebaseStatus = await firebaseService.readData(data1.account);
-        const json = firebaseStatus.toJSON();
-        isDoorOpen[parseInt(data1.account[2])][
-          countList[parseInt(data1.account[2])]
-        ] = json.output.door_status;
-        countList[parseInt(data1.account[2])] += 1;
-        console.log('is:' + isDoorOpen);
-        console.log('is!:' + !isDoorOpen);
-        if (countList[parseInt(data1.account[2])] >= 3) {
-          isCheck = true;
-          countList[parseInt(data1.account[2])] = 0;
-        }
-        if (isCheck && !isDoorOpen[0] && !isDoorOpen[1] && !isDoorOpen[2]) {
-          await orderService.updateOrder(data2._id, {
-            machine_status: 0,
-            payment_status: 'unpaid'
-          });
-          // setTimeout(async () => {
-          //   await orderService.updateOrder(data2._id, {
-          //     machine_status: 0,
-          //     payment_status: 'unpaid'
-          //   });
-          // }, 2 * 60 * 1000);
-          await firebaseService.writeData(
-            { machine_status: 0 },
-            data2.machine_id
+    await firebaseService.writeAdminData(ON, orderO.machine_id);
+    console.log(
+      dateTime.getDateTime() +
+        ' | Turn on and Admin mode on for machine ' +
+        orderO.machine_id
+    );
+    setTimeout(
+      async (machineId) => {
+        console.log(
+          dateTime.getDateTime() +
+            ' | Admin mode off for machine ' +
+            orderO.machine_id
+        );
+        await firebaseService.writeAdminData(OFF, machineId);
+      },
+      3 * 60 * 1000,
+      orderO.machine_id
+    );
+    setInterval(
+      async (machineId, orderId) => {
+        const isDoorOpenList = [];
+        for (let i = 0; i < 4; i++) {
+          setTimeout(
+            async (machineId, isDoorOpenList, i, orderId) => {
+              console.log(isDoorOpenList + '  ' + i);
+              if (i === 3) {
+                console.log(
+                  dateTime.getDateTime() +
+                    ' | Final check of machine ' +
+                    orderO.machine_id
+                );
+                if (
+                  isDoorOpenList[0] &&
+                  isDoorOpenList[1] &&
+                  isDoorOpenList[2]
+                ) {
+                  console.log(
+                    dateTime.getDateTime() +
+                      ' | Machine ' +
+                      orderO.machine_id +
+                      ' ended washing'
+                  );
+                  await orderService.updateOrder(orderId, {
+                    machine_status: 0,
+                    payment_status: 'unpaid'
+                  });
+                  await firebaseService.writeData(
+                    { machine_status: 0 },
+                    machineId
+                  );
+                  console.log(
+                    dateTime.getDateTime() +
+                      ' | Turn off for machine ' +
+                      orderO.machine_id
+                  );
+                }
+              } else {
+                const firebaseStatus = await firebaseService.readData(
+                  machineId
+                );
+                const json = firebaseStatus.toJSON();
+                isDoorOpenList[i] = json.output.door_status;
+                console.log(
+                  dateTime.getDateTime() +
+                    ' | Check of machine ' +
+                    orderO.machine_id +
+                    ', ' +
+                    (i + 1) +
+                    ' time check'
+                );
+              }
+            },
+            (i + 1) * 30 * 1000,
+            machineId,
+            isDoorOpenList,
+            i,
+            orderId
           );
-          await firebaseService.writeAdminData({ admin: 0 }, data2.machine_id);
         }
       },
-      30 * 1000,
-      query,
-      orderO
+      2 * 60 * 1000,
+      orderO.machine_id,
+      orderO._id
     );
     return {
       txn_id: query.txn_id,
@@ -208,8 +243,14 @@ exports.deleteOrder = async (req, res) => {
 
 exports.checkOrderById = async (req, res) => {
   let json;
+
+  console.log(
+    dateTime.getDateTime() +
+      '| Request query:' +
+      util.inspect(req.query, { showHidden: false, depth: null, colors: true })
+  );
+
   try {
-    console.log(dateTime.getDateTime() + '| Request query:' + req.query);
     switch (req.query.command) {
       case 'check':
         json = await check(req.query);
@@ -232,7 +273,11 @@ exports.checkOrderById = async (req, res) => {
       desc: err.message
     };
   } finally {
-    console.log(dateTime.getDateTime() + '| Response:' + json);
+    console.log(
+      dateTime.getDateTime() +
+        '| Response:' +
+        util.inspect(json, { showHidden: false, depth: null, colors: true })
+    );
     res.json(json);
   }
 };

@@ -26,13 +26,13 @@ module.exports.writeData = async (data, machineId) => {
   }
 };
 
-module.exports.writeAdminData = async (data, machineId) => {
+module.exports.writeAdminData = async (status, machineId) => {
   try {
     const washingMachinesInputRef = firebase
       .database()
       .ref(`${machineId}/input`);
     washingMachinesInputRef.update({
-      admin: data.admin
+      admin: status
     });
   } catch (err) {
     console.log(err);
