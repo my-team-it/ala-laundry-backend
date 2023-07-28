@@ -149,7 +149,8 @@ async function pay(query) {
                       orderO.machine_id +
                       ', ' +
                       (i + 1) +
-                      ' time check'
+                      ' time check. isDoorOpenList - ' +
+                      isDoorOpenList
                   );
                 }
               },
@@ -187,10 +188,8 @@ async function pay(query) {
 }
 
 exports.getAllOrders = async (req, res) => {
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     const orders = await orderService.getAllOrders();
-    console.log(dateTime.getDateTime() + '| Retrieve all orders:' + orders);
     res.json({ data: orders, status: 'success' });
   } catch (err) {
     console.error(err.message);
@@ -199,12 +198,10 @@ exports.getAllOrders = async (req, res) => {
 };
 
 exports.createOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     req.query.payment_status = 'unpaid';
     req.query.machine_status = 0;
     const order = await orderService.createOrder(req.query);
-    console.log(dateTime.getDateTime() + '| Create order:' + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -212,10 +209,8 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.getOrderById = async (req, res) => {
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     const order = await orderService.getOrderById(req.params.id);
-    console.log(dateTime.getDateTime() + '| Retrieve order:' + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -223,10 +218,8 @@ exports.getOrderById = async (req, res) => {
 };
 
 exports.updateOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     const order = await orderService.updateOrder(req.params.id, req.query);
-    console.log(dateTime.getDateTime() + '| Update order:' + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -234,10 +227,8 @@ exports.updateOrder = async (req, res) => {
 };
 
 exports.deleteOrder = async (req, res) => {
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     const order = await orderService.deleteOrder(req.params.id);
-    console.log(dateTime.getDateTime() + '| Delete order:' + order);
     res.json({ data: order, status: 'success' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -287,28 +278,24 @@ exports.checkOrderById = async (req, res) => {
 
 exports.getPrice = async (req, res) => {
   let json;
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     json = { sum: listOfPrices[req.query.service_id] };
   } catch (err) {
     console.error(err);
     json = { result: 1, comment: 'Service not found' };
   } finally {
-    console.log(dateTime.getDateTime() + '| Response:' + json);
     res.json(json);
   }
 };
 
 exports.getDuration = async (req, res) => {
   let json;
-  console.log(dateTime.getDateTime() + '| Request query:' + req.query);
   try {
     json = { sum: listOfPrices[req.query.service_id] };
   } catch (err) {
     console.error(err);
     json = { result: 1, comment: 'Service not found' };
   } finally {
-    console.log(dateTime.getDateTime() + '| Response:' + json);
     res.json(json);
   }
 };
