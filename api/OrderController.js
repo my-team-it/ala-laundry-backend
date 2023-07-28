@@ -5,11 +5,27 @@ const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 const util = require('util');
+const { machine } = require('os');
 
 const listOfModes = ['Кір жуу|Стирка'];
 const listOfPrices = [1];
+const intervalIDs = [];
 const ON = 1;
 const OFF = 0;
+
+function stopInterval(machineId) {
+  console.log(
+    intervalIDs +
+      'hera iam ' +
+      intervalIDs[parseInt(machineId[2]) - 1] +
+      ' ' +
+      parseInt(machineId[2]) +
+      ' ' +
+      machineId[2]
+  );
+  clearInterval(intervalIDs[parseInt(machineId[2])] - 1);
+  console.log(intervalIDs + 'hera iam ');
+}
 
 async function isOrderPaid(machineId) {
   const orders = await orderService.getAllOrders();
@@ -98,7 +114,7 @@ async function pay(query) {
       orderO.machine_id
     );
 
-    setInterval(
+    intervalIDs[parseInt(orderO.machine_id[2]) - 1] = setInterval(
       async (machineId, orderId) => {
         const order = await isOrderPaid(machineId);
         if (order.payment_status === 'paid') {
@@ -110,7 +126,7 @@ async function pay(query) {
                   console.log(
                     dateTime.getDateTime() +
                       ' | Final check of machine ' +
-                      orderO.machine_id
+                      machineId
                   );
                   if (
                     isDoorOpenList[0] &&
@@ -120,7 +136,7 @@ async function pay(query) {
                     console.log(
                       dateTime.getDateTime() +
                         ' | Machine ' +
-                        orderO.machine_id +
+                        machineId +
                         ' ended washing'
                     );
                     await orderService.updateOrder(orderId, {
@@ -134,8 +150,9 @@ async function pay(query) {
                     console.log(
                       dateTime.getDateTime() +
                         ' | Turn off for machine ' +
-                        orderO.machine_id
+                        machineId
                     );
+                    stopInterval(machineId);
                   }
                 } else {
                   const firebaseStatus = await firebaseService.readData(
@@ -154,7 +171,7 @@ async function pay(query) {
                   );
                 }
               },
-              (i + 1) * 30 * 1000,
+              (i + 1) * 500,
               machineId,
               isDoorOpenList,
               i,
@@ -163,7 +180,7 @@ async function pay(query) {
           }
         }
       },
-      2 * 60 * 1000,
+      3000,
       orderO.machine_id,
       orderO._id
     );
