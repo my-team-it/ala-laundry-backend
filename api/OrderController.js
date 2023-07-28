@@ -43,7 +43,9 @@ async function checkDoorStatus(machineId, isDoorOpenList, i, orderId) {
         machine_status: 0,
         payment_status: 'unpaid'
       });
+      await firebaseService.writeAdminData(ON, machineId);
       await firebaseService.writeData({ machine_status: 0 }, machineId);
+      await firebaseService.writeAdminData(OFF, machineId);
       console.log(
         dateTime.getDateTime() + ' | Turn off for machine ' + machineId
       );
