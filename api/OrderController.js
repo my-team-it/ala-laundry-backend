@@ -5,11 +5,10 @@ const orderService = require('../services/OrderService');
 const firebaseService = require('../services/FirebaseService');
 const dateTime = require('../utils/DateTime');
 const util = require('util');
-const { machine } = require('os');
 
 const listOfModes = ['Кір жуу|Стирка'];
 const listOfPrices = [1];
-const intervalIDs = [];
+const intervalIDs = [[], [], [], [], []];
 const ON = 1;
 const OFF = 0;
 
@@ -23,8 +22,61 @@ function stopInterval(machineId) {
       ' ' +
       machineId[2]
   );
-  clearInterval(intervalIDs[parseInt(machineId[2])] - 1);
-  console.log(intervalIDs + 'hera iam ');
+  while (intervalIDs[parseInt(machineId[2]) - 1].length) {
+    console.log(intervalIDs + 'hera iam ');
+    clearInterval(intervalIDs[parseInt(machineId[2]) - 1].pop());
+  }
+}
+
+async function checkDoorStatus(machineId, isDoorOpenList, i, orderId) {
+  const firebaseStatus = await firebaseService.readData(machineId);
+  const json = firebaseStatus.toJSON();
+  isDoorOpenList[i] = json.output.door_status;
+  console.log(
+    dateTime.getDateTime() +
+      ' | Check of machine ' +
+      machineId +
+      ', ' +
+      (i + 1) +
+      ' time check. isDoorOpenList - ' +
+      isDoorOpenList
+  );
+  if (i === 2) {
+    console.log(
+      dateTime.getDateTime() + ' | Final check of machine ' + machineId
+    );
+    if (isDoorOpenList[0] && isDoorOpenList[1] && isDoorOpenList[2]) {
+      console.log(
+        dateTime.getDateTime() + ' | Machine ' + machineId + ' ended washing'
+      );
+      await orderService.updateOrder(orderId, {
+        machine_status: 0,
+        payment_status: 'unpaid'
+      });
+      await firebaseService.writeData({ machine_status: 0 }, machineId);
+      console.log(
+        dateTime.getDateTime() + ' | Turn off for machine ' + machineId
+      );
+      stopInterval(machineId);
+    }
+  }
+}
+
+async function processWashing(machineId, orderId) {
+  const order = await isOrderPaid(machineId);
+  if (order.payment_status === 'paid') {
+    const isDoorOpenList = [];
+    for (let i = 0; i < 3; i++) {
+      setTimeout(
+        checkDoorStatus,
+        (i + 1) * 500,
+        machineId,
+        isDoorOpenList,
+        i,
+        orderId
+      );
+    }
+  }
 }
 
 async function isOrderPaid(machineId) {
@@ -114,75 +166,8 @@ async function pay(query) {
       orderO.machine_id
     );
 
-    intervalIDs[parseInt(orderO.machine_id[2]) - 1] = setInterval(
-      async (machineId, orderId) => {
-        const order = await isOrderPaid(machineId);
-        if (order.payment_status === 'paid') {
-          const isDoorOpenList = [];
-          for (let i = 0; i < 4; i++) {
-            setTimeout(
-              async (machineId, isDoorOpenList, i, orderId) => {
-                if (i === 3) {
-                  console.log(
-                    dateTime.getDateTime() +
-                      ' | Final check of machine ' +
-                      machineId
-                  );
-                  if (
-                    isDoorOpenList[0] &&
-                    isDoorOpenList[1] &&
-                    isDoorOpenList[2]
-                  ) {
-                    console.log(
-                      dateTime.getDateTime() +
-                        ' | Machine ' +
-                        machineId +
-                        ' ended washing'
-                    );
-                    await orderService.updateOrder(orderId, {
-                      machine_status: 0,
-                      payment_status: 'unpaid'
-                    });
-                    await firebaseService.writeData(
-                      { machine_status: 0 },
-                      machineId
-                    );
-                    console.log(
-                      dateTime.getDateTime() +
-                        ' | Turn off for machine ' +
-                        machineId
-                    );
-                    stopInterval(machineId);
-                  }
-                } else {
-                  const firebaseStatus = await firebaseService.readData(
-                    machineId
-                  );
-                  const json = firebaseStatus.toJSON();
-                  isDoorOpenList[i] = json.output.door_status;
-                  console.log(
-                    dateTime.getDateTime() +
-                      ' | Check of machine ' +
-                      orderO.machine_id +
-                      ', ' +
-                      (i + 1) +
-                      ' time check. isDoorOpenList - ' +
-                      isDoorOpenList
-                  );
-                }
-              },
-              (i + 1) * 500,
-              machineId,
-              isDoorOpenList,
-              i,
-              orderId
-            );
-          }
-        }
-      },
-      3000,
-      orderO.machine_id,
-      orderO._id
+    intervalIDs[parseInt(orderO.machine_id[2]) - 1].push(
+      setInterval(processWashing, 3000, orderO.machine_id, orderO._id)
     );
     return {
       txn_id: query.txn_id,
