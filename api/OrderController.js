@@ -106,7 +106,6 @@ async function pay(query) {
           for (let i = 0; i < 4; i++) {
             setTimeout(
               async (machineId, isDoorOpenList, i, orderId) => {
-                console.log(isDoorOpenList + '  ' + i);
                 if (i === 3) {
                   console.log(
                     dateTime.getDateTime() +
