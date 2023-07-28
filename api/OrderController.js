@@ -97,66 +97,70 @@ async function pay(query) {
       3 * 60 * 1000,
       orderO.machine_id
     );
+
     setInterval(
       async (machineId, orderId) => {
-        const isDoorOpenList = [];
-        for (let i = 0; i < 4; i++) {
-          setTimeout(
-            async (machineId, isDoorOpenList, i, orderId) => {
-              console.log(isDoorOpenList + '  ' + i);
-              if (i === 3) {
-                console.log(
-                  dateTime.getDateTime() +
-                    ' | Final check of machine ' +
-                    orderO.machine_id
-                );
-                if (
-                  isDoorOpenList[0] &&
-                  isDoorOpenList[1] &&
-                  isDoorOpenList[2]
-                ) {
+        const order = await isOrderPaid(query);
+        if (order.payment_status === 'paid') {
+          const isDoorOpenList = [];
+          for (let i = 0; i < 4; i++) {
+            setTimeout(
+              async (machineId, isDoorOpenList, i, orderId) => {
+                console.log(isDoorOpenList + '  ' + i);
+                if (i === 3) {
                   console.log(
                     dateTime.getDateTime() +
-                      ' | Machine ' +
-                      orderO.machine_id +
-                      ' ended washing'
-                  );
-                  await orderService.updateOrder(orderId, {
-                    machine_status: 0,
-                    payment_status: 'unpaid'
-                  });
-                  await firebaseService.writeData(
-                    { machine_status: 0 },
-                    machineId
-                  );
-                  console.log(
-                    dateTime.getDateTime() +
-                      ' | Turn off for machine ' +
+                      ' | Final check of machine ' +
                       orderO.machine_id
                   );
+                  if (
+                    isDoorOpenList[0] &&
+                    isDoorOpenList[1] &&
+                    isDoorOpenList[2]
+                  ) {
+                    console.log(
+                      dateTime.getDateTime() +
+                        ' | Machine ' +
+                        orderO.machine_id +
+                        ' ended washing'
+                    );
+                    await orderService.updateOrder(orderId, {
+                      machine_status: 0,
+                      payment_status: 'unpaid'
+                    });
+                    await firebaseService.writeData(
+                      { machine_status: 0 },
+                      machineId
+                    );
+                    console.log(
+                      dateTime.getDateTime() +
+                        ' | Turn off for machine ' +
+                        orderO.machine_id
+                    );
+                  }
+                } else {
+                  const firebaseStatus = await firebaseService.readData(
+                    machineId
+                  );
+                  const json = firebaseStatus.toJSON();
+                  isDoorOpenList[i] = json.output.door_status;
+                  console.log(
+                    dateTime.getDateTime() +
+                      ' | Check of machine ' +
+                      orderO.machine_id +
+                      ', ' +
+                      (i + 1) +
+                      ' time check'
+                  );
                 }
-              } else {
-                const firebaseStatus = await firebaseService.readData(
-                  machineId
-                );
-                const json = firebaseStatus.toJSON();
-                isDoorOpenList[i] = json.output.door_status;
-                console.log(
-                  dateTime.getDateTime() +
-                    ' | Check of machine ' +
-                    orderO.machine_id +
-                    ', ' +
-                    (i + 1) +
-                    ' time check'
-                );
-              }
-            },
-            (i + 1) * 30 * 1000,
-            machineId,
-            isDoorOpenList,
-            i,
-            orderId
-          );
+              },
+              (i + 1) * 30 * 1000,
+              machineId,
+              isDoorOpenList,
+              i,
+              orderId
+            );
+          }
         }
       },
       2 * 60 * 1000,
