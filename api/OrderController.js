@@ -159,7 +159,7 @@ async function pay(query) {
     );
 
     intervalIDs[parseInt(orderO.machine_id[2]) - 1].push(
-      setInterval(processWashing, 2 * 60 * 1000, orderO.machine_id, orderO._id)
+      setInterval(processWashing, 1.6 * 60 * 1000, orderO.machine_id, orderO._id)
     );
     return {
       txn_id: query.txn_id,
