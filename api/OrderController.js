@@ -154,7 +154,7 @@ async function pay(query) {
         );
         await firebaseService.writeAdminData(OFF, machineId);
       },
-      3 * 60 * 1000,
+      3.3 * 60 * 1000,
       orderO.machine_id
     );
 
