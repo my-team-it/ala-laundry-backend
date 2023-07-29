@@ -7,7 +7,7 @@ const dateTime = require('../utils/DateTime');
 const util = require('util');
 
 const listOfModes = ['Кір жуу|Стирка'];
-const listOfPrices = [1];
+const listOfPrices = [400];
 const intervalIDs = [[], [], [], [], []];
 const isWashingStarted = [false, false, false, false, false];
 const ON = 1;
