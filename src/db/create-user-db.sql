@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS user
      email      VARCHAR(100) UNIQUE NOT NULL, 
      role       ENUM('Admin', 'SuperUser') DEFAULT 'SuperUser', 
      age        INT(11) DEFAULT 0 
-  ); 
+  ); w
