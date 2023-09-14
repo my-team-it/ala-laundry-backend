@@ -14,6 +14,7 @@ import firebaseRoutes from "./routes/firebase.routes.js";
 
 import { fileURLToPath } from "url";
 
+
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
