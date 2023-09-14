@@ -39,6 +39,4 @@ const readData = async (machineId) => {
   return result.val();
 };
 
-writeData({ machine_status: 0 }, 1);
-console.log(await readData(1));
 export default { writeData, writeAdminData, readData };
