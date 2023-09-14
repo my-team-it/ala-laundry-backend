@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/", readModes);
 router.post("/add", createMode);
-router.get("/update/:id", readMode);
+router.get("/:id", readMode);
 router.post("/update/:id", updateMode);
 router.get("/delete/:id", deleteMode);
 

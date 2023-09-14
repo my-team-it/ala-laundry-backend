@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/", readRooms);
 router.post("/add", createRoom);
-router.get("/update/:id", readRoom);
+router.get("/:id", readRoom);
 router.post("/update/:id", updateRoom);
 router.get("/delete/:id", deleteRoom);
 

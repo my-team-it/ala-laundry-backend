@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/", readTransactions);
 router.post("/add", createTransaction);
-router.get("/update/:id", readTransaction);
+router.get("/:id", readTransaction);
 router.post("/update/:id", updateTransaction);
 router.get("/delete/:id", deleteTransaction);
 

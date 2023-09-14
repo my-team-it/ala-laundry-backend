@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/", readWashings);
 router.post("/add", createWashing);
-router.get("/update/:id", readWashing);
+router.get("/:id", readWashing);
 router.post("/update/:id", updateWashing);
 router.get("/delete/:id", deleteWashing);
 

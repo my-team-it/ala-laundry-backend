@@ -14,7 +14,7 @@ router.get("/", readMachines);
 router.get("/room/:id", readMachinesWithRooomID);
 router.get("/address", readMachinesAndAddress);
 router.post("/add", createMachine);
-router.get("/update/:id", readMachine);
+router.get("/:id", readMachine);
 router.post("/update/:id", updateMachine);
 router.get("/delete/:id", deleteMachine);
 
