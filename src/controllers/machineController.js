@@ -22,8 +22,10 @@ export const readMachinesAndAddress = async (req, res) => {
   const rows = await machineService.readMachines();
   for (let i = 0; i < rows[0].length; i++) {
     const element = rows[0][i];
-    const washingState = await roomService.readRoom(element.room_id);
-    element.address = washingState[0].address;
+    const roomName = await roomService.readRoom(element.room_id);
+    const washingState = await washingService.readLastWashingState(element.id);
+    element.address = roomName[0].address;
+    element.state = washingState[0].state;
   }
   res.json({ data: rows[0] });
 };
