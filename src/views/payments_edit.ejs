@@ -1,0 +1,47 @@
+<%- include("partials/_header") %>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-5 offset-md-3 card bg-dark">
+      <div class="card-body">
+        <form action="/payment/update/<%= payment.id %>" method="POST">
+          <input
+            type="text"
+            name="tx_id"
+            value="<%= payment.tx_id %>"
+            placeholder="tx_id"
+            class="form-control mb-3"
+            autofocus
+          />
+          <input
+            type="text"
+            name="prv_tx_id"
+            value="<%= payment.prv_tx_id%>"
+            placeholder="prv_tx_id"
+            class="form-control mb-3"
+          />
+
+          <input
+            type="text"
+            name="sum"
+            value="<%= payment.sum%>"
+            placeholder="sum"
+            class="form-control mb-3"
+          />
+
+          <input
+            type="text"
+            name="status"
+            value="<%= payment.status%>"
+            placeholder="status"
+            class="form-control mb-3"
+          />
+
+          <button type="submit" class="btn btn-primary">save payment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("partials/_footer") %>
