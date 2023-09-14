@@ -12,16 +12,8 @@ import transactionRoutes from "./routes/transaction.routes.js";
 import washingRoutes from "./routes/washing.routes.js";
 import firebaseRoutes from "./routes/firebase.routes.js";
 
-import { fileURLToPath } from "url";
-
-
 const app = express();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// settings
-app.set("port", process.env.PORT || 3000);
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+const appHTTP = express();
 
 // parse an HTML body into a string
 app.use(bodyParser.text({ type: "text/html" }));
@@ -29,7 +21,8 @@ app.use(bodyParser.text({ type: "text/html" }));
 // middlewares
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
-
+appHTTP.use(morgan("dev"));
+appHTTP.use(express.urlencoded({ extended: false }));
 // routes
 app.use("/kaspi", kaspiRoutes);
 app.use("/machine", machineRoutes);
@@ -39,11 +32,15 @@ app.use("/room", roomRoutes);
 app.use("/transaction", transactionRoutes);
 app.use("/washing", washingRoutes);
 app.use("/firebase", firebaseRoutes);
-app.get("/", async (req, res) => {
-  res.render("main", {});
-});
-// static files
-app.use(express.static(path.join(__dirname, "public")));
+
+appHTTP.use("/kaspi", kaspiRoutes);
+appHTTP.use("/machine", machineRoutes);
+appHTTP.use("/mode", modeRoutes);
+appHTTP.use("/payment", paymentRoutes);
+appHTTP.use("/room", roomRoutes);
+appHTTP.use("/transaction", transactionRoutes);
+appHTTP.use("/washing", washingRoutes);
+appHTTP.use("/firebase", firebaseRoutes);
 
 // starting the server
-export default app;
+export default { app, appHTTP };
