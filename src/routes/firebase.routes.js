@@ -8,7 +8,7 @@ import {
 } from "../controllers/firebaseController.js";
 const router = Router();
 
-router.route("/on/:id").get(machineOn);
+router.route("/on/:id/mode/:mode").get(machineOn);
 router.route("/off/:id").get(machineOff);
 router.route("/admin/on/:id").get(adminModeOn);
 router.route("/admin/off/:id").get(adminModeOff);

@@ -19,6 +19,8 @@ const writeData = async (data, machine_id) => {
   // Write the new post's data simultaneously in the posts list and the user's post list.
   const updates = {};
   updates["/onOff/"] = data.machine_status;
+  updates["/mode/"] = data.mode;
+  
 
   return update(child(ref(database), `${machine_id}/input`), updates);
 };

@@ -3,7 +3,10 @@ import firebaseService from "../services/firebaseService.js";
 export const machineOn = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
-    await firebaseService.writeData({ machine_status: 1 }, req.params.id);
+    await firebaseService.writeData(
+      { machine_status: 1, mode: req.params.mode },
+      req.params.id
+    );
     const result = await firebaseService.readData(req.params.id);
     res.json({ data: result, status: "success" });
   } catch (err) {
