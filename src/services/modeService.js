@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
 const readModes = async () => {
-  const [result] = await pool.query("SELECT * FROM mode");
+  const result = await pool.query("SELECT * FROM mode");
   return result;
 };
 
