@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
 const readWashings = async () => {
-  const [rows] = await pool.query("SELECT * FROM washing");
+  const rows = await pool.query("SELECT * FROM washing");
   return rows;
 };
 
