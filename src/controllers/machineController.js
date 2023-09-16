@@ -39,14 +39,14 @@ export const createMachine = async (req, res) => {
   const newmachine = JSON.parse(Object.keys(temp)[0]);
   console.log(newmachine);
   const result = await machineService.createMachine(newmachine);
-  res.json({ message: result });
+  res.json({ data: result });
 };
 
 export const readMachine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const { id } = req.params;
   const result = await machineService.readMachine(id);
-  res.json({ message: result });
+  res.json({ data: result });
 };
 
 export const updateMachine = async (req, res) => {
@@ -54,12 +54,12 @@ export const updateMachine = async (req, res) => {
   const { id } = req.params;
   const newmachine = req.body;
   const result = await machineService.updateMachine(id, newmachine);
-  res.json({ message: result });
+  res.json({ data: result });
 };
 
 export const deleteMachine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const { id } = req.params;
   const result = await machineService.deleteMachine(id);
-  res.json({ message: result });
+  res.json({ data: result });
 };

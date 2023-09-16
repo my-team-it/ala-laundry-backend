@@ -113,7 +113,7 @@ async function pay(query) {
   const washing = {
     start_time: now,
     is_door_open: true,
-    state: "INIT",
+    state: "ACTIVE",
     mode_id,
     machine_id,
   };
