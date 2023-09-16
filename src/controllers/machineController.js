@@ -35,7 +35,8 @@ export const readMachinesAndAddress = async (req, res) => {
 
 export const createMachine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
-  const newmachine = JSON.parse(req.body);
+  const temp = JSON.parse(JSON.stringify(req.body));
+  const newmachine = JSON.parse(Object.keys(temp)[0]);
   console.log(newmachine);
   const result = await machineService.createMachine(newmachine);
   res.json({ message: result });
