@@ -4,7 +4,7 @@ export const machineOn = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
     await firebaseService.writeData(
-      { machine_status: 1, mode: req.params.mode },
+      { machine_status: 1, mode: parseInt(req.params.mode) },
       req.params.id
     );
     const result = await firebaseService.readData(req.params.id);
