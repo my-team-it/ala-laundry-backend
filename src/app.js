@@ -16,7 +16,7 @@ const app = express();
 const appHTTP = express();
 
 // parse an HTML body into a string
-app.use(bodyParser.text({ type: "text/html" }));
+app.use(bodyParser.text({ type: "json" }));
 
 // middlewares
 app.use(morgan("dev"));
