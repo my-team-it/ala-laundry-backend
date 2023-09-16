@@ -16,7 +16,10 @@ export const machineOn = async (req, res) => {
 
 export const machineOff = async (req, res) => {
   try {
-    await firebaseService.writeData({ machine_status: 0 }, req.params.id);
+    await firebaseService.writeData(
+      { machine_status: 0, mode: 0 },
+      req.params.id
+    );
     const result = await firebaseService.readData(req.params.id);
     res.json({ data: result, status: "success" });
   } catch (err) {
