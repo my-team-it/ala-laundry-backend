@@ -4,6 +4,20 @@ export const machineOn = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
     await firebaseService.writeData(
+      { machine_status: 1, mode: 1 },
+      req.params.id
+    );
+    const result = await firebaseService.readData(req.params.id);
+    res.json({ data: result, status: "success" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const machineOnWithMode = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  try {
+    await firebaseService.writeData(
       { machine_status: 1, mode: parseInt(req.params.mode) },
       req.params.id
     );
