@@ -15,6 +15,7 @@ export const machineOn = async (req, res) => {
 };
 
 export const machineOff = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   try {
     await firebaseService.writeData(
       { machine_status: 0, mode: 1 },
@@ -28,6 +29,7 @@ export const machineOff = async (req, res) => {
 };
 
 export const machine = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   try {
     const result = await firebaseService.readData(req.params.id);
     res.json({ data: result, status: "success" });
@@ -37,6 +39,7 @@ export const machine = async (req, res) => {
 };
 
 export const adminModeOn = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   try {
     await firebaseService.writeAdminData({ admin: 1 }, req.params.id);
     const result = await firebaseService.readData(req.params.id);
@@ -47,6 +50,7 @@ export const adminModeOn = async (req, res) => {
 };
 
 export const adminModeOff = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   try {
     await firebaseService.writeAdminData({ admin: 0 }, req.params.id);
 
