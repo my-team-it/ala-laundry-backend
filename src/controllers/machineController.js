@@ -40,8 +40,11 @@ export const readMachinesAndAddress = async (req, res) => {
         element.state = washingState[0].state;
       }
     } catch (error) {
-      console.log(error);
-      element.state = "AVAILABLE";
+      if (firebaseState == null) {
+        element.state = "NON AVAILABLE";
+      } else {
+        element.state = "AVAILABLE";
+      }
     }
   }
   res.json({ data: rows[0] });
