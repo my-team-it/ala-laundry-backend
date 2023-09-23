@@ -34,7 +34,10 @@ export const readMachinesAndAddress = async (req, res) => {
       await machineTimerService.readMachineTimerByMachineID(element.id);
     element.address = roomName[0].address;
     try {
-      if (firebaseState.output.timer == machineTimerState[0].current_timer) {
+      if (
+        firebaseState.data.output.timer == machineTimerState[0].current_timer
+      ) {
+        console.log("SAME TIME FIREBASE <-> machineTimerState");
         element.state = "NON AVAILABLE";
       } else {
         element.state = washingState[0].state;

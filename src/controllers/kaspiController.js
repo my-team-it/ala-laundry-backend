@@ -38,7 +38,8 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
   if (i === 2) {
     if (isDoorOpenList[0] && isDoorOpenList[1] && isDoorOpenList[2]) {
       await washingService.updateWashing(washing_id, {
-        state: "AVAILABLE", end_timer_val: json.output.timer
+        state: "AVAILABLE",
+        end_timer_val: json.output.timer,
       });
       if (!isWashingStarted[parseInt(machineId)]) {
         await firebaseService.writeAdminData(ON, machineId);
@@ -68,7 +69,9 @@ async function check(query) {
     id: index,
   }));
 
-  const result = await washingService.readLastMachineState(query.account);
+  const result = await washingService.readLastWashingStateByMachineID(
+    query.account
+  );
 
   if (result[0] === query.account) {
     return {

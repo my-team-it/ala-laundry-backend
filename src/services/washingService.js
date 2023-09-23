@@ -7,7 +7,7 @@ const readWashings = async () => {
 
 const readLastWashingStateByMachineID = async (machine_id) => {
   const [rows] = await pool.query(
-    "SELECT state FROM washing WHERE machine_id = ? AND state = 'COMPLETED'",
+    "SELECT state FROM washing WHERE machine_id = ? AND state = 'AVAILABLE'",
     [machine_id]
   );
   return rows;
