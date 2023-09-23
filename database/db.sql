@@ -2,7 +2,7 @@
 -- CREATE DATABASE alatest;
 
 -- to use database
-use alatest;
+use alaprod;
 
 -- creating a new table
 CREATE TABLE room (
