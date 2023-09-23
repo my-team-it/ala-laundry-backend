@@ -1,10 +1,15 @@
 import machineService from "../services/machineService.js";
 import washingService from "../services/washingService.js";
 import roomService from "../services/roomService.js";
+import firebaseService from "../services/firebaseService.js";
+import machineTimerService from "../services/machineTimerService.js";
 
 export const readMachines = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const rows = await machineService.readMachines();
+  for (let i = 0; i < rows[0].length; i++) {
+    firebaseService.onTimerChange(rows[0][i].id);
+  }
   res.json({ data: rows[0] });
 };
 
@@ -27,9 +32,20 @@ export const readMachinesAndAddress = async (req, res) => {
     const element = rows[0][i];
     const roomName = await roomService.readRoom(element.room_id);
     const washingState = await washingService.readLastWashingState(element.id);
+    const firebaseState = await firebaseService.readData(element.id);
+    const machineTimerState =
+      await machineTimerService.readMachineTimerByMachineID(element.id);
     console.log(washingState);
     element.address = roomName[0].address;
-    element.state = washingState[0].state;
+    try {
+      if (firebaseState.output.timer == machineTimerState[0].current_timer) {
+        element.state = "NON AVAILABLE";
+      } else {
+        element.state = washingState[0].state;
+      }
+    } catch {
+      element.state = "NON AVAILABLE";
+    }
   }
   res.json({ data: rows[0] });
 };
@@ -40,6 +56,8 @@ export const createMachine = async (req, res) => {
   const newmachine = JSON.parse(Object.keys(temp)[0]);
   console.log(newmachine);
   const result = await machineService.createMachine(newmachine);
+  const machine_id = result[0].insertId;
+  firebaseService.onTimerChange(machine_id);
   res.json({ data: result });
 };
 

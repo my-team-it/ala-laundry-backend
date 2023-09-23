@@ -1,5 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, update, get, child } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  update,
+  get,
+  child,
+  onValue,
+} from "firebase/database";
+
+import machineTimerService from "./machineTimerService.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB95Rp0pvwjcFi0dHEvvrRh0svfTkuL7MA",
@@ -20,7 +29,6 @@ const writeData = async (data, machine_id) => {
   const updates = {};
   updates["/onOff/"] = data.machine_status;
   updates["/mode/"] = data.mode;
-  
 
   return update(child(ref(database), `${machine_id}/input`), updates);
 };
@@ -41,4 +49,22 @@ const readData = async (machineId) => {
   return result.val();
 };
 
-export default { writeData, writeAdminData, readData };
+const onTimerChange = (machine_id) => {
+  const database = getDatabase(app);
+  console.log(machine_id);
+  onValue(ref(database, `${machine_id}/output/`), (snapshot) => {
+    const data = snapshot.val();
+    if (data == null) {
+      machineTimerService.createMachineTimer({
+        machine_id,
+      });
+    } else {
+      machineTimerService.updateMachineTimerByMachineID(machine_id, {
+        current_timer: data.timer,
+      });
+    }
+    console.log(data);
+  });
+};
+
+export default { writeData, writeAdminData, readData, onTimerChange };

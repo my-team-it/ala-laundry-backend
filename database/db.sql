@@ -20,6 +20,15 @@ CREATE TABLE machine (
   FOREIGN KEY (room_id) REFERENCES room(id)
 );
 
+CREATE TABLE machine_timer (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  prev_timer INT,
+  current_timer INT,
+  machine_id INT UNSIGNED NOT NULL,
+  INDEX(machine_id),
+  FOREIGN KEY (machine_id) REFERENCES machine(id)
+);
+
 CREATE TABLE mode (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
@@ -31,6 +40,7 @@ CREATE TABLE mode (
 CREATE TABLE washing (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  end_timer_val INT,
   is_door_open BOOLEAN,
   state VARCHAR(10),
   mode_id INT UNSIGNED NOT NULL,

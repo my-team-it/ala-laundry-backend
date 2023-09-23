@@ -11,7 +11,7 @@ import roomRoutes from "./routes/room.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import washingRoutes from "./routes/washing.routes.js";
 import firebaseRoutes from "./routes/firebase.routes.js";
-
+import machineTimerRoutes from "./routes/machineTimer.routes.js";
 const app = express();
 const appHTTP = express();
 
@@ -32,6 +32,7 @@ app.use("/room", roomRoutes);
 app.use("/transaction", transactionRoutes);
 app.use("/washing", washingRoutes);
 app.use("/firebase", firebaseRoutes);
+app.use("/machineTimer", machineTimerRoutes);
 
 appHTTP.use("/kaspi", kaspiRoutes);
 appHTTP.use("/machine", machineRoutes);
@@ -41,6 +42,7 @@ appHTTP.use("/room", roomRoutes);
 appHTTP.use("/transaction", transactionRoutes);
 appHTTP.use("/washing", washingRoutes);
 appHTTP.use("/firebase", firebaseRoutes);
+appHTTP.use("/machineTimer", machineTimerRoutes);
 
 // starting the server
 export default { app, appHTTP };
