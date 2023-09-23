@@ -62,7 +62,7 @@ const onTimerChange = (machine_id) => {
         machine_id,
       });
     } else {
-      if (machineTimerState[0] == null) {
+      if (machineTimerState[0].length == 0) {
         machineTimerService.createMachineTimer({
           current_timer: data.timer,
           machine_id,
