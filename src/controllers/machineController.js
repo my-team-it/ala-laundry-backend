@@ -7,9 +7,6 @@ import machineTimerService from "../services/machineTimerService.js";
 export const readMachines = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const rows = await machineService.readMachines();
-  for (let i = 0; i < rows[0].length; i++) {
-    firebaseService.onTimerChange(rows[0][i].id);
-  }
   res.json({ data: rows[0] });
 };
 
