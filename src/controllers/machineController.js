@@ -34,12 +34,16 @@ export const readMachinesAndAddress = async (req, res) => {
       await machineTimerService.readMachineTimerByMachineID(element.id);
     element.address = roomName[0].address;
     try {
+      console.log("MCTRinRMAA mt: " + machineTimerState[0].current_timer);
+      console.log("MCTRinRMAA fire: " + firebaseState.output.timer);
+
       if (firebaseState.output.timer == machineTimerState[0].current_timer) {
         element.state = "NON AVAILABLE";
       } else {
         element.state = washingState[0].state;
       }
     } catch (error) {
+      console.log("MCTRinRMAA ERROR: " + error);
       if (firebaseState == null) {
         element.state = "NON AVAILABLE";
       } else {
