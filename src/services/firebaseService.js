@@ -56,7 +56,7 @@ const onTimerChange = (machine_id) => {
     const data = snapshot.val();
     const machineTimerState =
       machineTimerService.readMachineTimerByMachineID(machine_id);
-    if (data == null || machineTimerState[0]) {
+    if (data == null || machineTimerState[0] == null) {
       machineTimerService.createMachineTimer({
         machine_id,
       });
