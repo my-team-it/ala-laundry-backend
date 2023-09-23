@@ -43,7 +43,7 @@ export const readMachinesAndAddress = async (req, res) => {
       }
     } catch (error) {
       console.log(error);
-      if (firebaseState == null) {
+      if (firebaseState.output.timer == null) {
         element.state = "NON AVAILABLE";
       } else {
         element.state = "AVAILABLE";
