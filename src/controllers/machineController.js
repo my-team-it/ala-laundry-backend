@@ -35,7 +35,6 @@ export const readMachinesAndAddress = async (req, res) => {
     element.address = roomName[0].address;
     try {
       console.log(machineTimerState[0][0]);
-      console.log(firebaseState.output);
       if (new Date() - machineTimerState[0][0].current_timer > 1000) {
         element.state = "NON AVAILABLE";
       } else {
