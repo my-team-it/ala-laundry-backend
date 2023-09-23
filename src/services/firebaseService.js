@@ -49,13 +49,13 @@ const readData = async (machineId) => {
   return result.val();
 };
 
-const onTimerChange = (machine_id) => {
+const onTimerChange = async (machine_id) => {
   const database = getDatabase(app);
   console.log(machine_id);
   onValue(ref(database, `${machine_id}/output/`), (snapshot) => {
     const data = snapshot.val();
-    const machineTimerState =
-      machineTimerService.readMachineTimerByMachineID(machine_id);
+    const machineTimerState = await;
+    machineTimerService.readMachineTimerByMachineID(machine_id);
     console.log(machineTimerState);
     if (data == null) {
       machineTimerService.createMachineTimer({
