@@ -20,6 +20,15 @@ export const readMachineTimer = async (req, res) => {
   res.json({ data: result });
 };
 
+export const readMachineTimerByMachineID = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  const { machine_id } = req.params;
+  const [result] = await machineTimerService.readMachineTimerByMachineID(
+    machine_id
+  );
+  res.json({ data: result });
+};
+
 export const updateMachineTimer = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const { id } = req.params;

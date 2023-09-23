@@ -30,7 +30,7 @@ export const readMachinesAndAddress = async (req, res) => {
     const roomName = await roomService.readRoom(element.room_id);
     const washingState = await washingService.readLastWashingState(element.id);
     const firebaseState = await firebaseService.readData(element.id);
-    const machineTimerState =
+    const [machineTimerState] =
       await machineTimerService.readMachineTimerByMachineID(element.id);
     element.address = roomName[0].address;
     try {
