@@ -36,7 +36,7 @@ export const readMachinesAndAddress = async (req, res) => {
     try {
       console.log(machineTimerState[0][0]);
       console.log(firebaseState.output);
-      if (firebaseState.output.timer == machineTimerState[0][0].current_timer) {
+      if (new Date() - machineTimerState[0][0].current_timer > 1000) {
         element.state = "NON AVAILABLE";
       } else {
         element.state = washingState[0].state;
