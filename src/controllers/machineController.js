@@ -30,12 +30,12 @@ export const readMachinesAndAddress = async (req, res) => {
     const roomName = await roomService.readRoom(element.room_id);
     const washingState = await washingService.readLastWashingState(element.id);
     const firebaseState = await firebaseService.readData(element.id);
-    const [machineTimerState] =
+    const machineTimerState =
       await machineTimerService.readMachineTimerByMachineID(element.id);
     element.address = roomName[0].address;
     try {
-      console.log("MCTRinRMAA mt: " + machineTimerState);
-      console.log("MCTRinRMAA fire: " + firebaseState);
+      console.log(machineTimerState);
+      console.log(firebaseState);
 
       if (firebaseState.output.timer == machineTimerState[0].current_timer) {
         element.state = "NON AVAILABLE";
@@ -43,7 +43,7 @@ export const readMachinesAndAddress = async (req, res) => {
         element.state = washingState[0].state;
       }
     } catch (error) {
-      console.log("MCTRinRMAA ERROR: " + error);
+      console.log(error);
       if (firebaseState == null) {
         element.state = "NON AVAILABLE";
       } else {
