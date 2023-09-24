@@ -142,12 +142,13 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
-  await firebaseService.writeData({ machine_status: 1 }, machine_id);
-  await firebaseService.writeAdminData(1, machine_id);
+  await firebaseService.writeStartStopData(
+    { machine_status: 1, mode: mode_id },
+    machine_id
+  );
   setTimeout(
     async (machineId) => {
       isWashingStarted[parseInt(machine_id)] = true;
-      await firebaseService.writeAdminData(0, machine_id);
     },
     3.3 * 60 * 1000,
     machine_id
