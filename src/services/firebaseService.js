@@ -28,7 +28,6 @@ const writeData = async (data, machine_id) => {
   // Write the new post's data simultaneously in the posts list and the user's post list.
   const updates = {};
   updates["/onOff/"] = data.machine_status;
-  updates["/mode/"] = data.mode;
 
   return update(child(ref(database), `${machine_id}/input`), updates);
 };
@@ -37,11 +36,13 @@ const writeStartStopData = async (data, machine_id) => {
   const database = getDatabase(app);
 
   // Write the new post's data simultaneously in the posts list and the user's post list.
-  const updates = {};
-  updates["/startStop/"] = data.machine_status;
-  updates["/mode/"] = data.mode;
+  const updates_1 = {};
+  updates_1["/startStop/"] = data.machine_status;
+  update(child(ref(database), `${machine_id}/input`), updates_1);
+  const updates_2 = {};
+  updates_2["/mode/"] = data.mode;
 
-  return update(child(ref(database), `${machine_id}/input`), updates);
+  return update(child(ref(database), `${machine_id}/input`), updates_2);
 };
 
 const writeAdminData = async (data, machine_id) => {
@@ -78,6 +79,7 @@ const onTimerChange = (machine_id) => {
         });
       }
       machineTimerService.updateMachineTimerByMachineID(machine_id, {
+        prev_timer: machineTimerState.current_timer,
         current_timer: Date.now(),
       });
     }
