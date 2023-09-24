@@ -24,7 +24,7 @@ async function processWashing(washing_id) {
       setTimeout(
         checkDoorStatus,
         (i + 1) * 30 * 1000,
-        machine_id,
+        washing_id,
         washing.machine_id,
         isDoorOpenList,
         i
