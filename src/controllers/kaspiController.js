@@ -66,7 +66,7 @@ async function check(query) {
   const listOfModeNames = await modeService.readNames();
   const priceList = listOfModeNames.map((key, index) => ({
     name: key,
-    id: index,
+    id: index + 1,
   }));
 
   const result = await washingService.readLastWashingStateByMachineID(
