@@ -33,12 +33,13 @@ export const readMachinesAndAddress = async (req, res) => {
     const roomName = await roomService.readRoom(element.room_id);
     const washingState = await washingService.readLastWashingState(element.id);
     const firebaseState = await firebaseService.readData(element.id);
-    const machineTimerState =
+    const [machineTimerState] =
       await machineTimerService.readMachineTimerByMachineID(element.id);
     element.address = roomName[0].address;
     try {
-      console.log(machineTimerState[0][0]);
-      if (new Date() - machineTimerState[0][0].current_timer > 1000) {
+      console.log(machineTimerState[0]);
+      console.log(firebaseState.output.timer);
+      if (firebaseState.output.timer - machineTimerState[0].prev_timer < 1) {
         element.state = "NON AVAILABLE";
       } else {
         element.state = washingState[0].state;
