@@ -1,12 +1,8 @@
-import firebaseService from "../services/firebaseService.js";
 import machineTimerService from "../services/machineTimerService.js";
 
 export const readMachineTimers = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const [rows] = await machineTimerService.readMachineTimers();
-  for (let i = 0; i < rows[0].length; i++) {
-    firebaseService.onTimerChange(rows[0][i].machine_id);
-  }
   res.json({ data: rows });
 };
 
