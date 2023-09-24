@@ -38,11 +38,11 @@ const writeStartStopData = async (data, machine_id) => {
   // Write the new post's data simultaneously in the posts list and the user's post list.
   const updates_1 = {};
   updates_1["/startStop/"] = data.machine_status;
-  update(child(ref(database), `${machine_id}/input`), updates_1);
+  await update(child(ref(database), `${machine_id}/input`), updates_1);
   const updates_2 = {};
   updates_2["/mode/"] = data.mode;
 
-  return update(child(ref(database), `${machine_id}/input`), updates_2);
+  return await update(child(ref(database), `${machine_id}/input`), updates_2);
 };
 
 const writeAdminData = async (data, machine_id) => {
