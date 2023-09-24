@@ -8,7 +8,7 @@ export const readMachines = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   const rows = await machineService.readMachines();
   for (let i = 0; i < rows[0].length; i++) {
-    firebaseService.onTimerChange(rows[0][i].id, new Date().getTime());
+    firebaseService.onTimerChange(rows[0][i].id);
   }
   res.json({ data: rows[0] });
 };
@@ -63,7 +63,7 @@ export const createMachine = async (req, res) => {
   console.log(newmachine);
   const result = await machineService.createMachine(newmachine);
   const machine_id = result[0].insertId;
-  firebaseService.onTimerChange(machine_id, new Date().getTime());
+  firebaseService.onTimerChange(machine_id);
   res.json({ data: result });
 };
 
