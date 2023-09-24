@@ -34,6 +34,10 @@ async function processWashing(washing_id) {
 }
 
 async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
+  console.log(washing_id);
+  console.log(machineId);
+  console.log(isDoorOpenList);
+
   const json = await firebaseService.readData(machineId);
   isDoorOpenList[i] = !json.output.inDoor;
   if (i === 2) {
