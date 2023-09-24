@@ -68,7 +68,7 @@ const onTimerChange = (machine_id, now) => {
   const database = getDatabase(app);
   onValue(ref(database, `${machine_id}/output/`), async (snapshot) => {
     const data = snapshot.val();
-    const machineTimerState =
+    const [machineTimerState] =
       await machineTimerService.readMachineTimerByMachineID(machine_id);
     console.log(machineTimerState);
     if (data == null) {
