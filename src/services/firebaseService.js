@@ -65,29 +65,28 @@ const readData = async (machineId) => {
 };
 
 const onTimerChange = (machine_id) => {
-  const database = getDatabase(app);
-  onValue(ref(database, `${machine_id}/output/`), async (snapshot) => {
-    const data = snapshot.val();
-    const now = new Date();
-    const [machineTimerState] =
-      await machineTimerService.readMachineTimerByMachineID(machine_id);
-    if (data == null) {
-      await machineTimerService.createMachineTimer({
-        machine_id,
-      });
-    } else {
-      if (machineTimerState[0].length == 0) {
-        await machineTimerService.createMachineTimer({
-          current_timer: now.getTime(),
-          machine_id,
-        });
-      }
-
-      await machineTimerService.updateMachineTimerByMachineID(machine_id, {
-        current_timer: now.getTime(),
-      });
-    }
-  });
+  // const database = getDatabase(app);
+  // onValue(ref(database, `${machine_id}/output/`), async (snapshot) => {
+  //   const data = snapshot.val();
+  //   const now = new Date();
+  //   const [machineTimerState] =
+  //     await machineTimerService.readMachineTimerByMachineID(machine_id);
+  //   if (data == null) {
+  //     await machineTimerService.createMachineTimer({
+  //       machine_id,
+  //     });
+  //   } else {
+  //     if (machineTimerState[0].length == 0) {
+  //       await machineTimerService.createMachineTimer({
+  //         current_timer: now.getTime(),
+  //         machine_id,
+  //       });
+  //     }
+  //     await machineTimerService.updateMachineTimerByMachineID(machine_id, {
+  //       current_timer: now.getTime(),
+  //     });
+  //   }
+  // });
 };
 
 export default {
