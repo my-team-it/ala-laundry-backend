@@ -82,8 +82,7 @@ const onTimerChange = (machine_id, now) => {
         });
       }
       await machineTimerService.updateMachineTimerByMachineID(machine_id, {
-        prev_timer: machineTimerState[0].current_timer,
-        current_timer: data.timer,
+        current_timer: new Date().getSeconds(),
       });
     }
   });
