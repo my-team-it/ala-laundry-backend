@@ -71,20 +71,23 @@ const onTimerChange = (machine_id) => {
     const machineTimerState =
       await machineTimerService.readMachineTimerByMachineID(machine_id);
     if (data == null) {
-      machineTimerService.createMachineTimer({
+      await machineTimerService.createMachineTimer({
         machine_id,
       });
     } else {
       if (machineTimerState[0].length == 0) {
-        machineTimerService.createMachineTimer({
+        await machineTimerService.createMachineTimer({
           current_timer: Date.now(),
           machine_id,
         });
       }
-      machineTimerService.updateMachineTimerByMachineID(machine_id, {
-        prev_timer: machineTimerState.current_timer,
-        current_timer: Date.now(),
-      });
+      console.log(
+        await machineTimerService.updateMachineTimerByMachineID(machine_id, {
+          prev_timer: machineTimerState.current_timer,
+          current_timer: Date.now(),
+        })
+      );
+      console.log("fsaga");
     }
   });
 };
