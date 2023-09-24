@@ -70,6 +70,7 @@ const onTimerChange = (machine_id, now) => {
     const data = snapshot.val();
     const machineTimerState =
       await machineTimerService.readMachineTimerByMachineID(machine_id);
+    console.log(machineTimerState);
     if (data == null) {
       await machineTimerService.createMachineTimer({
         machine_id,
@@ -83,7 +84,7 @@ const onTimerChange = (machine_id, now) => {
       }
       console.log(
         await machineTimerService.updateMachineTimerByMachineID(machine_id, {
-          prev_timer: machineTimerState.current_timer,
+          prev_timer: machineTimerState[0].current_timer,
           current_timer: data.timer,
         })
       );
