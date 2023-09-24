@@ -64,7 +64,7 @@ const readData = async (machineId) => {
   return result.val();
 };
 
-const onTimerChange = (machine_id) => {
+const onTimerChange = (machine_id, now) => {
   console.log("onTImerChange for " + machine_id);
   const database = getDatabase(app);
   onValue(ref(database, `${machine_id}/output/`), async (snapshot) => {
@@ -79,14 +79,14 @@ const onTimerChange = (machine_id) => {
     } else {
       if (machineTimerState[0].length == 0) {
         await machineTimerService.createMachineTimer({
-          current_timer: Date.now(),
+          current_timer: now,
           machine_id,
         });
       }
       console.log(
         await machineTimerService.updateMachineTimerByMachineID(machine_id, {
           prev_timer: machineTimerState.current_timer,
-          current_timer: Date.now(),
+          current_timer: now,
         })
       );
       console.log("fsaga");
