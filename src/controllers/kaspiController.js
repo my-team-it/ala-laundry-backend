@@ -16,7 +16,7 @@ function stopInterval(machineId) {
 }
 
 async function processWashing(washing_id) {
-  const [washing] = await washingService.readWashing(washing_id);
+  const washing = await washingService.readWashing(washing_id);
   console.log(washing);
   if (washing[0].state === "ACTIVE") {
     const isDoorOpenList = [];
