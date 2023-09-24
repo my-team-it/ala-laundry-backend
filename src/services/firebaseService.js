@@ -29,7 +29,7 @@ const writeData = async (data, machine_id) => {
   const updates = {};
   updates["/onOff/"] = data.machine_status;
 
-  return update(child(ref(database), `${machine_id}/input`), updates);
+  return update(child(ref(database), `${machine_id}/input/onOff`), updates);
 };
 
 const writeStartStopData = async (data, machine_id) => {
@@ -40,12 +40,15 @@ const writeStartStopData = async (data, machine_id) => {
     const updates_1 = {};
     updates_1["/mode/"] = data.mode;
 
-    await update(child(ref(database), `${machine_id}/input`), updates_1);
+    await update(child(ref(database), `${machine_id}/input/mode`), updates_1);
   }
   const updates_2 = {};
   updates_2["/startStop/"] = data.machine_status;
 
-  return await update(child(ref(database), `${machine_id}/input`), updates_2);
+  return await update(
+    child(ref(database), `${machine_id}/input/startStop`),
+    updates_2
+  );
 };
 
 const writeAdminData = async (data, machine_id) => {
