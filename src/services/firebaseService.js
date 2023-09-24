@@ -27,7 +27,18 @@ const writeData = async (data, machine_id) => {
 
   // Write the new post's data simultaneously in the posts list and the user's post list.
   const updates = {};
-  updates["/onOff/"] = data.machine_status;
+  updates["/startStop/"] = data.machine_status;
+  updates["/mode/"] = data.mode;
+
+  return update(child(ref(database), `${machine_id}/input`), updates);
+};
+
+const writeStartStopData = async (data, machine_id) => {
+  const database = getDatabase(app);
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/startStop/"] = data.machine_status;
   updates["/mode/"] = data.mode;
 
   return update(child(ref(database), `${machine_id}/input`), updates);
@@ -73,4 +84,10 @@ const onTimerChange = (machine_id) => {
   });
 };
 
-export default { writeData, writeAdminData, readData, onTimerChange };
+export default {
+  writeData,
+  writeAdminData,
+  writeStartStopData,
+  readData,
+  onTimerChange,
+};

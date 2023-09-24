@@ -42,6 +42,34 @@ export const machineOff = async (req, res) => {
   }
 };
 
+export const machineStart = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  try {
+    await firebaseService.writeData(
+      { machine_status: 1, mode: parseInt(req.params.mode) },
+      req.params.id
+    );
+    const result = await firebaseService.readData(req.params.id);
+    res.json({ data: result, status: "success" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const machineStop = async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  try {
+    await firebaseService.writeData(
+      { machine_status: 0, mode: 1 },
+      req.params.id
+    );
+    const result = await firebaseService.readData(req.params.id);
+    res.json({ data: result, status: "success" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export const machine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
