@@ -13,6 +13,14 @@ const readLastWashingStateByMachineID = async (machine_id) => {
   return rows;
 };
 
+const readLastByMachineID = async (machine_id) => {
+  const [rows] = await pool.query(
+    "SELECT * FROM washing WHERE machine_id = ?",
+    [machine_id]
+  );
+  return rows;
+};
+
 const readLastWashingState = async (washing_id) => {
   const [rows] = await pool.query("SELECT state FROM washing WHERE id = ?", [
     washing_id,
@@ -44,6 +52,7 @@ const deleteWashing = async (req, res) => {
 export default {
   readWashings,
   readLastWashingStateByMachineID,
+  readLastByMachineID,
   readLastWashingState,
   createWashing,
   readWashing,

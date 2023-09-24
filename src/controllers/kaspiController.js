@@ -15,9 +15,9 @@ function stopInterval(machineId) {
   }
 }
 
-async function processWashing(washing_id) {
-  const washing = await washingService.readLastWashingStateByMachineID(
-    washing_id
+async function processWashing(machine_id) {
+  const washing = await washingService.readLastByMachineID(
+    machine_id
   );
   console.log(washing_id);
   console.log(washing);
