@@ -45,7 +45,7 @@ export const machineOff = async (req, res) => {
 export const machineStart = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
-    await firebaseService.writeData(
+    await firebaseService.writeStartStopData(
       { machine_status: 1, mode: parseInt(req.params.mode) },
       req.params.id
     );
@@ -59,7 +59,7 @@ export const machineStart = async (req, res) => {
 export const machineStop = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
-    await firebaseService.writeData(
+    await firebaseService.writeStartStopData(
       { machine_status: 0, mode: 1 },
       req.params.id
     );
