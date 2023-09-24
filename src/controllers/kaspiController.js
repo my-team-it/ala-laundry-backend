@@ -15,18 +15,17 @@ function stopInterval(machineId) {
   }
 }
 
-async function processWashing(machine_id) {
-  const washing = await washingService.readLastByMachineID(machine_id);
-  console.log(machine_id);
+async function processWashing(washing_id) {
+  const [washing] = await washingService.readWashing(washing_id);
   console.log(washing);
-  if (washing[0].state === "ACTIVE") {
+  if (washing.state === "ACTIVE") {
     const isDoorOpenList = [];
     for (let i = 0; i < 3; i++) {
       setTimeout(
         checkDoorStatus,
         (i + 1) * 30 * 1000,
-        washing_id,
-        washing[0].machine_id,
+        machine_id,
+        washing.machine_id,
         isDoorOpenList,
         i
       );
@@ -162,7 +161,7 @@ async function pay(query) {
   }
 
   intervalIDs[machine_id].push(
-    setInterval(processWashing, 1.6 * 60 * 1000, machine_id, transaction_id)
+    setInterval(processWashing, 1.6 * 60 * 1000, washing_id, transaction_id)
   );
 
   return {
