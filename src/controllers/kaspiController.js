@@ -104,6 +104,7 @@ async function check(query) {
     bin: "870430301264",
     comment: "Item found",
   };
+  console.log("Item found");
   return response;
 }
 
