@@ -46,6 +46,7 @@ https
 
 appHTTP.use('/api/order', orderRouter)
 appHTTP.use('/api/machine', machineRouter)
+appHTTP.use('/kaspi', kaspiRouter)
 
 appHTTP.listen(portHTTP, () => {
   console.log(`App (HTTP) listening on port ${portHTTP}`)
