@@ -156,6 +156,7 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
+  await firebaseService.writeData({ machine_status: 1 }, machine_id);
   await firebaseService.writeStartStopData(
     { machine_status: 1, mode: mode_id },
     machine_id
