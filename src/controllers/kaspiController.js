@@ -86,6 +86,7 @@ async function check(query) {
   );
 
   if (result[0] === query.account) {
+    console.log("machine not ready");
     return {
       txn_id: query.txn_id,
       result: 5,
