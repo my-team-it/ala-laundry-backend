@@ -51,6 +51,7 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
           { machine_status: 0 },
           machineId
         );
+        await firebaseService.writeData({ machine_status: 0 }, machineId);
       }
       isWashingStarted[parseInt(machineId)] = false;
       stopInterval(machineId);
