@@ -71,7 +71,7 @@ function generateId() {
 async function check(query) {
   const listOfModeNames = await modeService.readNames();
   let priceList = listOfModeNames.map((key, index) => ({
-    name: key,
+    name: key.name,
     id: index + 1,
   }));
 
