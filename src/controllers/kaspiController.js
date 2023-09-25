@@ -27,7 +27,7 @@ async function processWashing(washing_id) {
         i,
         washing_id,
         washing.machine_id,
-        isDoorOpenList,
+        isDoorOpenList
       );
     }
   }
@@ -70,10 +70,16 @@ function generateId() {
 
 async function check(query) {
   const listOfModeNames = await modeService.readNames();
-  const priceList = listOfModeNames.map((key, index) => ({
+  let priceList = listOfModeNames.map((key, index) => ({
     name: key,
     id: index + 1,
   }));
+
+  if (query.account == "11" || query.account == "12") {
+    priceList = priceList.slice(6);
+  } else {
+    priceList = priceList.slice(0, 6);
+  }
 
   const result = await washingService.readLastWashingStateByMachineID(
     query.account
