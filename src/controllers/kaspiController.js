@@ -76,7 +76,7 @@ async function check(query) {
   }));
 
   if (query.account == "11" || query.account == "12") {
-    priceList = priceList.slice(6);
+    priceList = priceList.slice(7);
   } else {
     priceList = priceList.slice(0, 6);
   }
