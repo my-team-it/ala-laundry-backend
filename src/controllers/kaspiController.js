@@ -70,6 +70,16 @@ function generateId() {
 }
 
 async function check(query) {
+  const firebaseState = await firebaseService.readData(query.account);
+  if (firebaseState.output.inDoor == 1) {
+    console.log("machine not ready");
+    return {
+      txn_id: query.txn_id,
+      result: 5,
+      bin: "870430301264",
+      comment: "Machine is not ready",
+    };
+  }
   const listOfModeNames = await modeService.readNames();
   let priceList = listOfModeNames.map((key, index) => ({
     name: key.name,
