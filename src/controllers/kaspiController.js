@@ -71,6 +71,18 @@ function generateId() {
 
 async function check(query) {
   const firebaseState = await firebaseService.readData(query.account);
+
+  const now = new Date().getTime();
+  if (now / 1000 - firebaseState.output.timer > 10) {
+    console.log("machine not ready");
+    return {
+      txn_id: query.txn_id,
+      result: 5,
+      bin: "870430301264",
+      comment: "Machine is not ready",
+    };
+  }
+
   if (firebaseState.output.inDoor == 1) {
     console.log("machine not ready");
     return {
