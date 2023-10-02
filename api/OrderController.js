@@ -78,6 +78,7 @@ async function processWashing(machineId, orderId) {
 async function isOrderPaid(machineId) {
   const orders = await orderService.getAllOrders();
   let id;
+  console.log(orders);
   for (let i = 0; i < 5; i++) {
     if (orders[i].machine_id === machineId) {
       id = orders[i]._id;
