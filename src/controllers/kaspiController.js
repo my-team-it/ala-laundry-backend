@@ -74,7 +74,7 @@ async function check(query) {
 
   const now = new Date().getTime();
   if (now / 1000 - firebaseState.output.timer > 10) {
-    console.log("machine not ready");
+    console.log("machine not ready1");
     return {
       txn_id: query.txn_id,
       result: 5,
@@ -84,7 +84,7 @@ async function check(query) {
   }
 
   if (firebaseState.output.inDoor == 1) {
-    console.log("machine not ready");
+    console.log("machine not ready2");
     return {
       txn_id: query.txn_id,
       result: 5,
@@ -109,7 +109,7 @@ async function check(query) {
   );
 
   if (result[0] === query.account) {
-    console.log("machine not ready");
+    console.log("machine not ready3");
     return {
       txn_id: query.txn_id,
       result: 5,
