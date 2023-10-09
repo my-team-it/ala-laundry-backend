@@ -98,12 +98,6 @@ async function check(query) {
     id: index + 1,
   }));
 
-  if (query.account == "11" || query.account == "12") {
-    priceList = priceList.slice(7);
-  } else {
-    priceList = priceList.slice(0, 6);
-  }
-
   const result = await washingService.readLastWashingStateByMachineID(
     query.account
   );
