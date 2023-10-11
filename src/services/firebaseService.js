@@ -41,7 +41,11 @@ const writeStartStopData = async (data, machine_id) => {
     updates_1["mode"] = data.mode;
 
     setTimeout(
-      await update(child(ref(database), `${machine_id}/input/mode`), updates_1),
+      async () =>
+        await update(
+          child(ref(database), `${machine_id}/input/mode`),
+          updates_1
+        ),
       5000
     );
   }
@@ -50,10 +54,11 @@ const writeStartStopData = async (data, machine_id) => {
   updates_2["isStarted"] = data.machine_status;
 
   setTimeout(
-    await update(
-      child(ref(database), `${machine_id}/input/isStarted`),
-      updates_2
-    ),
+    async () =>
+      await update(
+        child(ref(database), `${machine_id}/input/isStarted`),
+        updates_2
+      ),
     7000
   );
 
