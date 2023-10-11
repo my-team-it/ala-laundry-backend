@@ -4,60 +4,8 @@ import paymentService from "../services/paymentService.js";
 import transactionService from "../services/transactionService.js";
 import firebaseService from "../services/firebaseService.js";
 
-const intervalIDs = [];
-const isWashingStarted = [];
 const ON = 1;
 const OFF = 0;
-
-function stopInterval(machineId) {
-  while (intervalIDs[machineId].length) {
-    clearInterval(intervalIDs[machineId[2]].pop());
-  }
-}
-
-async function processWashing(washing_id) {
-  const [washing] = await washingService.readWashing(washing_id);
-  console.log(washing);
-  if (washing.state === "ACTIVE") {
-    const isDoorOpenList = [];
-    for (let i = 0; i < 3; i++) {
-      setTimeout(
-        checkDoorStatus,
-        (i + 1) * 30 * 1000,
-        i,
-        washing_id,
-        washing.machine_id,
-        isDoorOpenList
-      );
-    }
-  }
-}
-
-async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
-  console.log(washing_id);
-  console.log(machineId);
-  console.log(isDoorOpenList);
-
-  const json = await firebaseService.readData(machineId);
-  isDoorOpenList[i] = !json.output.inDoor;
-  if (i === 2) {
-    if (isDoorOpenList[0] && isDoorOpenList[1] && isDoorOpenList[2]) {
-      await washingService.updateWashing(washing_id, {
-        state: "AVAILABLE",
-        end_timer_val: json.output.timer,
-      });
-      if (!isWashingStarted[parseInt(machineId)]) {
-        await firebaseService.writeStartStopData(
-          { machine_status: 0 },
-          machineId
-        );
-        await firebaseService.writeData({ machine_status: 0 }, machineId);
-      }
-      isWashingStarted[parseInt(machineId)] = false;
-      stopInterval(machineId);
-    }
-  }
-}
 
 function generateId() {
   let prvTxnId;
@@ -97,20 +45,6 @@ async function check(query) {
     name: key.name,
     id: index + 1,
   }));
-
-  const result = await washingService.readLastWashingStateByMachineID(
-    query.account
-  );
-
-  if (result[0] === query.account) {
-    console.log("machine not ready3");
-    return {
-      txn_id: query.txn_id,
-      result: 5,
-      bin: "870430301264",
-      comment: "Machine is not ready",
-    };
-  }
 
   const response = {
     txn_id: query.txn_id,
@@ -177,21 +111,6 @@ async function pay(query) {
   await firebaseService.writeStartStopData(
     { machine_status: 1, mode: mode_id },
     machine_id
-  );
-  setTimeout(
-    async (machineId) => {
-      isWashingStarted[parseInt(machine_id)] = true;
-    },
-    3.3 * 60 * 1000,
-    machine_id
-  );
-
-  if (!intervalIDs[machine_id]) {
-    intervalIDs[machine_id] = [];
-  }
-
-  intervalIDs[machine_id].push(
-    setInterval(processWashing, 1.6 * 60 * 1000, washing_id, transaction_id)
   );
 
   return {
