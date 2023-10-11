@@ -53,7 +53,7 @@ const writeStartStopData = async (data, machine_id) => {
       child(ref(database), `${machine_id}/input/isStarted`),
       updates_2
     ),
-    2000
+    7000
   );
 };
 
