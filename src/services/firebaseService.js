@@ -45,16 +45,19 @@ const writeStartStopData = async (data, machine_id) => {
       5000
     );
   }
+
   const updates_2 = {};
   updates_2["isStarted"] = data.machine_status;
 
-  return setTimeout(
+  setTimeout(
     await update(
       child(ref(database), `${machine_id}/input/isStarted`),
       updates_2
     ),
     7000
   );
+
+  return true;
 };
 
 const writeAdminData = async (data, machine_id) => {
