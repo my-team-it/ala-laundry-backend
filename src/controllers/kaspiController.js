@@ -113,6 +113,14 @@ async function pay(query) {
     machine_id
   );
 
+  setTimeout(async () => {
+    await firebaseService.writeData({ machine_status: -1 }, machine_id);
+    await firebaseService.writeStartStopData(
+      { machine_status: -1, mode: -1 },
+      machine_id
+    );
+  }, 8000);
+
   return {
     txn_id: query.txn_id,
     prv_txn_id: prvTxnId,
