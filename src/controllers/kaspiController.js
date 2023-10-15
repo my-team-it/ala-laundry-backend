@@ -175,7 +175,12 @@ async function pay(query) {
     );
   }, 8000);
 
-  if (machine_id != 6 && machine_id != 7 && machine_id != 8 && machine_id != 9)
+  if (
+    machine_id != 6 &&
+    machine_id != 7 &&
+    machine_id != 8 &&
+    machine_id != 9
+  ) {
     if (!intervalIDs[machine_id]) {
       intervalIDs[machine_id] = [];
     }
