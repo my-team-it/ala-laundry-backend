@@ -31,7 +31,7 @@ async function check(query) {
     };
   }
 
-  if (firebaseState.output.inDoor == 1) {
+  if (firebaseState.output.isDoorOpen == 1) {
     console.log("machine not ready2");
     return {
       txn_id: query.txn_id,
@@ -40,6 +40,7 @@ async function check(query) {
       comment: "Machine is not ready",
     };
   }
+
   const listOfModeNames = await modeService.readNames();
   let priceList = listOfModeNames.map((key, index) => ({
     name: key.name,
