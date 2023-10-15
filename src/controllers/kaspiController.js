@@ -46,6 +46,7 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
       await washingService.updateWashing(washing_id, {
         state: "AVAILABLE",
         end_timer_val: json.output.timer,
+        is_door_open: 0,
       });
       if (!isWashingStarted[parseInt(machineId)]) {
         await firebaseService.writeData({ machine_status: 0 }, machineId);
@@ -67,7 +68,7 @@ function generateId() {
 }
 
 async function check(query) {
-  const firebaseState = await firebaseService.readData(query.account);
+  const washing = await washingService.readLastByMachineID(query.account);
 
   const now = new Date().getTime();
   if (now / 1000 - firebaseState.output.timer > 10) {
@@ -80,7 +81,7 @@ async function check(query) {
     };
   }
 
-  if (firebaseState.output.isDoorOpen == 1) {
+  if (washing[washing.length - 1].is_door_open == 1) {
     console.log("machine not ready2");
     return {
       txn_id: query.txn_id,
