@@ -31,7 +31,7 @@ async function check(query) {
     };
   }
 
-  if (firebaseState.output.isDoorOpen == 1) {
+  if (firebaseState.output.isDoorOpen == 0) {
     console.log("machine not ready2");
     return {
       txn_id: query.txn_id,
