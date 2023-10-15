@@ -69,6 +69,7 @@ function generateId() {
 
 async function check(query) {
   const washing = await washingService.readLastByMachineID(query.account);
+  const firebaseState = await firebaseService.readData(query.account);
 
   const now = new Date().getTime();
   if (now / 1000 - firebaseState.output.timer > 10) {
