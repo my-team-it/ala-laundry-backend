@@ -52,7 +52,7 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
         await firebaseService.writeData({ machine_status: 0 }, machineId);
       }
       isWashingStarted[parseInt(machineId)] = false;
-      stopInterval(machineId);
+      stopInterval(parseInt(machineId));
     }
   }
 }
