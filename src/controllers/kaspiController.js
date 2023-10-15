@@ -80,7 +80,10 @@ async function check(query) {
       comment: "Machine is not ready",
     };
   }
-
+  console.log("-----kaspi-cmd-check------------");
+  console.log(washing);
+  console.log(washing[washing.length - 1]);
+  console.log("--------------------------------");
   if (washing[washing.length - 1].is_door_open == 1) {
     console.log("machine not ready2");
     return {
