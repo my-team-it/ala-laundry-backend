@@ -12,7 +12,7 @@ const isWashingStarted = [];
 
 function stopInterval(machineId) {
   while (intervalIDs[machineId].length) {
-    clearInterval(intervalIDs[machineId[2]].pop());
+    clearInterval(intervalIDs[machineId].pop());
   }
 }
 
