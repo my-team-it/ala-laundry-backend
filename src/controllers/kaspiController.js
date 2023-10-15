@@ -7,6 +7,59 @@ import firebaseService from "../services/firebaseService.js";
 const ON = 1;
 const OFF = 0;
 
+const intervalIDs = [];
+const isWashingStarted = [];
+
+function stopInterval(machineId) {
+  while (intervalIDs[machineId].length) {
+    clearInterval(intervalIDs[machineId[2]].pop());
+  }
+}
+
+async function processWashing(washing_id) {
+  const [washing] = await washingService.readWashing(washing_id);
+  console.log(washing);
+  if (washing.state === "ACTIVE") {
+    const isDoorOpenList = [];
+    for (let i = 0; i < 3; i++) {
+      setTimeout(
+        checkDoorStatus,
+        (i + 1) * 60 * 1000,
+        i,
+        washing_id,
+        washing.machine_id,
+        isDoorOpenList
+      );
+    }
+  }
+}
+
+async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
+  console.log(washing_id);
+  console.log(machineId);
+  console.log(isDoorOpenList);
+
+  const json = await firebaseService.readData(machineId);
+  isDoorOpenList[i] = !json.output.inDoor;
+  if (i === 2) {
+    if (isDoorOpenList[0] && isDoorOpenList[1] && isDoorOpenList[2]) {
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        end_timer_val: json.output.timer,
+      });
+      if (!isWashingStarted[parseInt(machineId)]) {
+        await firebaseService.writeStartStopData(
+          { machine_status: 0 },
+          machineId
+        );
+        await firebaseService.writeData({ machine_status: 0 }, machineId);
+      }
+      isWashingStarted[parseInt(machineId)] = false;
+      stopInterval(machineId);
+    }
+  }
+}
+
 function generateId() {
   let prvTxnId;
 
@@ -121,6 +174,16 @@ async function pay(query) {
       machine_id
     );
   }, 8000);
+
+  if (machine_id != 6 && machine_id != 7 && machine_id != 8 && machine_id != 9)
+    if (!intervalIDs[machine_id]) {
+      intervalIDs[machine_id] = [];
+    }
+
+    intervalIDs[machine_id].push(
+      setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
+    );
+  }
 
   return {
     txn_id: query.txn_id,
