@@ -81,18 +81,31 @@ async function check(query) {
       comment: "Machine is not ready",
     };
   }
-  console.log("-----kaspi-cmd-check------------");
-  console.log(washing);
-  console.log(washing[washing.length - 1]);
-  console.log("--------------------------------");
-  if (washing[washing.length - 1].is_door_open == 1) {
-    console.log("machine not ready2");
-    return {
-      txn_id: query.txn_id,
-      result: 5,
-      bin: "870430301264",
-      comment: "Machine is not ready",
-    };
+  if (
+    query.account != 6 &&
+    query.account != 7 &&
+    query.account != 8 &&
+    query.account != 9
+  ) {
+    if (washing[washing.length - 1].is_door_open == 1) {
+      console.log("machine not ready2");
+      return {
+        txn_id: query.txn_id,
+        result: 5,
+        bin: "870430301264",
+        comment: "Machine is not ready",
+      };
+    }
+  } else {
+    if (firebaseService.isDoorOpen == 1) {
+      console.log("machine not ready5");
+      return {
+        txn_id: query.txn_id,
+        result: 5,
+        bin: "870430301264",
+        comment: "Machine is not ready",
+      };
+    }
   }
 
   const listOfModeNames = await modeService.readNames();
