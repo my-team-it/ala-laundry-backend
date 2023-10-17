@@ -155,7 +155,7 @@ async function pay(query) {
   };
   const newWashing = await washingService.createWashing(washing);
   const washing_id = newWashing[0].insertId;
-  console.log(mode_price);
+  // console.log(mode_priceD);
   const payment = {
     txn_id: query.txn_id,
     prv_txn_id: prvTxnId,
@@ -187,7 +187,7 @@ async function pay(query) {
       { machine_status: -1, mode: -1 },
       machine_id
     );
-  }, 8000);
+  }, 17000);
 
   if (
     machine_id != 6 &&
