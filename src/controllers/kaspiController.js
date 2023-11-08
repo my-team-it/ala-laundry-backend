@@ -88,7 +88,7 @@ async function check(query) {
     id: index + 1,
   }));
 
-  if (query.account >= 1000 && query.account == 9) {
+  if (query.account >= 1000 || query.account == 9) {
     console.log("machine ready SAMSUNG");
     priceList = [priceList[6]];
     console.log(priceList);
