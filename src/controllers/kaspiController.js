@@ -212,7 +212,7 @@ async function pay(query) {
           );
         }
         ;
-      }, 25 * 1000)
+      }, 30 * 1000)
     }, 30 * 1000)
   } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
