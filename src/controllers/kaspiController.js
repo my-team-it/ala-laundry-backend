@@ -186,7 +186,7 @@ async function pay(query) {
       setTimeout(async () => {
         if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
           await firebaseService.writeStartStopData(
-            { machine_status: 1 },
+            { machine_status: 0 },
             machine_id
           )
         } else {
