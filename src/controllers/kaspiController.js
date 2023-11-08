@@ -175,7 +175,7 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
-  if (machine_id >= 1000 && query.account == 9) {
+  if (machine_id >= 1000 || query.account == 9) {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
     setTimeout(async () => {
