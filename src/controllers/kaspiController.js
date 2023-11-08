@@ -94,7 +94,18 @@ async function check(query) {
     query.account != 8 &&
     query.account != 9
   ) {
-    if (washing[washing.length - 1].is_door_open == 1) {
+    if (query.account === 1000) {
+      priceList = {'Жуу|Стирка':1};
+      if (firebaseState.output.isDoorClosed == 1) {
+        console.log("machine not ready5");
+        return {
+          txn_id: query.txn_id,
+          result: 5,
+          bin: "870430301264",
+          comment: "Machine is not ready",
+        };
+      }
+    } else if (washing[washing.length - 1].is_door_open == 1) {
       console.log("machine not ready2");
       return {
         txn_id: query.txn_id,
@@ -104,7 +115,6 @@ async function check(query) {
       };
     }
   } else {
-    priceList = {'Жуу|Стирка':1};
     if (firebaseState.output.isDoorClosed == 1) {
       console.log("machine not ready5");
       return {
