@@ -24,7 +24,7 @@ async function processWashing(washing_id) {
     for (let i = 0; i < 3; i++) {
       setTimeout(
         checkDoorStatus,
-        (i + 1) * 60 * 1000,
+        (i + 1) * 30 * 1000,
         i,
         washing_id,
         washing.machine_id,
@@ -40,7 +40,7 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
   console.log(isDoorOpenList);
 
   const json = await firebaseService.readData(machineId);
-  isDoorOpenList[i] = json.output.isDoorOpen;
+  isDoorOpenList[i] = json.output.isDoorClosed;
   if (i === 2) {
     if (!isDoorOpenList[0] && !isDoorOpenList[1] && !isDoorOpenList[2]) {
       await washingService.updateWashing(washing_id, {
