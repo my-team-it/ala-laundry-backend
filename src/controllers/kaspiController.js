@@ -213,6 +213,19 @@ async function pay(query) {
         }
         ;
       }, 30 * 1000)
+
+      setTimeout(async () => {
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          const gaga = 2 + 2;
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 45 * 1000)
     }, 30 * 1000)
   } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
