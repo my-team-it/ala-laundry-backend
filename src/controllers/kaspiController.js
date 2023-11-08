@@ -104,7 +104,7 @@ async function check(query) {
       };
     }
   } else {
-    priceList = {'Жуу|Стирка':300};
+    priceList = {'Жуу|Стирка':1};
     if (firebaseState.output.isDoorOpen == 1) {
       console.log("machine not ready5");
       return {
