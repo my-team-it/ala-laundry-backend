@@ -88,7 +88,7 @@ async function check(query) {
     id: index + 1,
   }));
 
-  if (query.account >= 1000 || query.account == 9) {
+  if (query.account >= 1000) {
     console.log("machine ready SAMSUNG");
     priceList = [priceList[6]];
     console.log(priceList);
@@ -175,7 +175,7 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
-  if (machine_id >= 1000 || query.account == 9) {
+  if (machine_id >= 1000) {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
     setTimeout(async () => {
@@ -190,7 +190,7 @@ async function pay(query) {
           machine_id
         );
       }, 17000);
-    }, 60 * 1000)
+    }, 30 * 1000)
   } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
     await firebaseService.writeStartStopData(
