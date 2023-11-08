@@ -88,7 +88,7 @@ async function check(query) {
     id: index + 1,
   }));
 
-  if (query.account === 1000) {
+  if (query.account == 1000) {
     console.log("machine ready 1000");
     priceList = {'Жуу|Стирка':1};
     if (firebaseState.output.isDoorClosed == 1) {
