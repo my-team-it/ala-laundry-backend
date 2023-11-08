@@ -88,8 +88,8 @@ async function check(query) {
     id: index + 1,
   }));
 
-  if (query.account == 1000) {
-    console.log("machine ready 1000");
+  if (query.account >= 1000) {
+    console.log("machine ready SAMSUNG");
     priceList = [priceList[6]];
     console.log(priceList);
     if (firebaseState.output.isDoorClosed == 1) {
@@ -101,26 +101,10 @@ async function check(query) {
         comment: "Machine is not ready",
       };
     }
-  } else if (
-    query.account != 6 &&
-    query.account != 7 &&
-    query.account != 8 &&
-    query.account != 9
-  ) {
+  } else {
     console.log("machine ready TCL");
     if (washing[washing.length - 1].is_door_open == 1) {
       console.log("machine not ready2");
-      return {
-        txn_id: query.txn_id,
-        result: 5,
-        bin: "870430301264",
-        comment: "Machine is not ready",
-      };
-    }
-  } else {
-    console.log("machine ready SAMSUNG");
-    if (firebaseState.output.isDoorClosed == 1) {
-      console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
         result: 5,
@@ -191,12 +175,23 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
-  if (
-    machine_id != 6 &&
-    machine_id != 7 &&
-    machine_id != 8 &&
-    machine_id != 9
-  ) {
+  if (machine_id >= 1000) {
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+
+    setTimeout(async () => {
+      await firebaseService.writeStartStopData(
+        { machine_status: 1 },
+        machine_id
+      );
+      setTimeout(async () => {
+        await firebaseService.writeData({ machine_status: -1 }, machine_id);
+        await firebaseService.writeStartStopData(
+          { machine_status: -1, mode: -1 },
+          machine_id
+        );
+      }, 17000);
+    }, 60 * 1000)
+  } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
     await firebaseService.writeStartStopData(
       { machine_status: 1, mode: mode_id },
@@ -218,22 +213,6 @@ async function pay(query) {
     intervalIDs[machine_id].push(
       setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
     );
-  } else {
-    await firebaseService.writeData({ machine_status: 1 }, machine_id);
-
-    setTimeout(async () => {
-      await firebaseService.writeStartStopData(
-        { machine_status: 1 },
-        machine_id
-      );
-      setTimeout(async () => {
-        await firebaseService.writeData({ machine_status: -1 }, machine_id);
-        await firebaseService.writeStartStopData(
-          { machine_status: -1, mode: -1 },
-          machine_id
-        );
-      }, 17000);
-    }, 60 * 1000)
   }
 
   return {
