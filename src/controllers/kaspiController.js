@@ -40,7 +40,7 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
   console.log(isDoorOpenList);
 
   const json = await firebaseService.readData(machineId);
-  isDoorOpenList[i] = json.output.isDoorClosed;
+  isDoorOpenList[i] = json.output.isDoorOpen;
   if (i === 2) {
     if (!isDoorOpenList[0] && !isDoorOpenList[1] && !isDoorOpenList[2]) {
       await washingService.updateWashing(washing_id, {
@@ -92,7 +92,7 @@ async function check(query) {
     console.log("machine ready SAMSUNG");
     priceList = [priceList[6]];
     console.log(priceList);
-    if (firebaseState.output.isDoorClosed == 1) {
+    if (firebaseState.output.isDoorOpen == 1) {
       console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
