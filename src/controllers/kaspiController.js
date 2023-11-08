@@ -90,7 +90,8 @@ async function check(query) {
 
   if (query.account == 1000) {
     console.log("machine ready 1000");
-    priceList = {'Жуу|Стирка':1};
+    priceList = [priceList[6]];
+    console.log(priceList);
     if (firebaseState.output.isDoorClosed == 1) {
       console.log("machine not ready5");
       return {
