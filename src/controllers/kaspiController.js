@@ -184,12 +184,35 @@ async function pay(query) {
         machine_id
       );
       setTimeout(async () => {
-        await firebaseService.writeData({ machine_status: -1 }, machine_id);
-        await firebaseService.writeStartStopData(
-          { machine_status: -1 },
-          machine_id
-        );
-      }, 17000);
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          await firebaseService.writeStartStopData(
+            { machine_status: 1 },
+            machine_id
+          )
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 10 * 1000)
+      setTimeout(async () => {
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          await firebaseService.writeStartStopData(
+            { machine_status: 1 },
+            machine_id
+          )
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 20 * 1000)
     }, 30 * 1000)
   } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
