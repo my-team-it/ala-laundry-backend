@@ -105,7 +105,7 @@ async function check(query) {
     }
   } else {
     priceList = {'Жуу|Стирка':1};
-    if (firebaseState.output.isDoorOpen == 1) {
+    if (firebaseState.output.isDoorClosed == 1) {
       console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
