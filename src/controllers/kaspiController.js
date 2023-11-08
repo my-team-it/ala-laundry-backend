@@ -81,6 +81,13 @@ async function check(query) {
       comment: "Machine is not ready",
     };
   }
+
+  const listOfModeNames = await modeService.readNames();
+  let priceList = listOfModeNames.map((key, index) => ({
+    name: key.name,
+    id: index + 1,
+  }));
+
   if (
     query.account != 6 &&
     query.account != 7 &&
@@ -97,6 +104,7 @@ async function check(query) {
       };
     }
   } else {
+    priceList = {'Жуу|Стирка':300};
     if (firebaseState.output.isDoorOpen == 1) {
       console.log("machine not ready5");
       return {
@@ -107,12 +115,6 @@ async function check(query) {
       };
     }
   }
-
-  const listOfModeNames = await modeService.readNames();
-  let priceList = listOfModeNames.map((key, index) => ({
-    name: key.name,
-    id: index + 1,
-  }));
 
   const response = {
     txn_id: query.txn_id,
@@ -175,26 +177,26 @@ async function pay(query) {
   );
   const transaction_id = newTransaction[0].insertId;
 
-  await firebaseService.writeData({ machine_status: 1 }, machine_id);
-  await firebaseService.writeStartStopData(
-    { machine_status: 1, mode: mode_id },
-    machine_id
-  );
-
-  setTimeout(async () => {
-    await firebaseService.writeData({ machine_status: -1 }, machine_id);
-    await firebaseService.writeStartStopData(
-      { machine_status: -1, mode: -1 },
-      machine_id
-    );
-  }, 17000);
-
   if (
     machine_id != 6 &&
     machine_id != 7 &&
     machine_id != 8 &&
     machine_id != 9
   ) {
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+    await firebaseService.writeStartStopData(
+      { machine_status: 1, mode: mode_id },
+      machine_id
+    );
+
+    setTimeout(async () => {
+      await firebaseService.writeData({ machine_status: -1 }, machine_id);
+      await firebaseService.writeStartStopData(
+        { machine_status: -1, mode: -1 },
+        machine_id
+      );
+    }, 17000);
+
     if (!intervalIDs[machine_id]) {
       intervalIDs[machine_id] = [];
     }
@@ -202,6 +204,22 @@ async function pay(query) {
     intervalIDs[machine_id].push(
       setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
     );
+  } else {
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+
+    setTimeout(async () => {
+      await firebaseService.writeStartStopData(
+        { machine_status: 1 },
+        machine_id
+      );
+      setTimeout(async () => {
+        await firebaseService.writeData({ machine_status: -1 }, machine_id);
+        await firebaseService.writeStartStopData(
+          { machine_status: -1, mode: -1 },
+          machine_id
+        );
+      }, 17000);
+    }, 60 * 1000)
   }
 
   return {
