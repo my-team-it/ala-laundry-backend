@@ -12,6 +12,8 @@ import transactionRoutes from "./routes/transaction.routes.js";
 import washingRoutes from "./routes/washing.routes.js";
 import firebaseRoutes from "./routes/firebase.routes.js";
 import machineTimerRoutes from "./routes/machineTimer.routes.js";
+import dbRoutes from "./routes/db.routes.js";
+
 const app = express();
 const appHTTP = express();
 
@@ -33,6 +35,7 @@ app.use("/transaction", transactionRoutes);
 app.use("/washing", washingRoutes);
 app.use("/firebase", firebaseRoutes);
 app.use("/machineTimer", machineTimerRoutes);
+app.use("/db", dbRoutes)
 
 appHTTP.use("/kaspi", kaspiRoutes);
 appHTTP.use("/machine", machineRoutes);
@@ -43,6 +46,7 @@ appHTTP.use("/transaction", transactionRoutes);
 appHTTP.use("/washing", washingRoutes);
 appHTTP.use("/firebase", firebaseRoutes);
 appHTTP.use("/machineTimer", machineTimerRoutes);
+appHTTP.use("/db", dbRoutes)
 
 // starting the server
 export default { app, appHTTP };
