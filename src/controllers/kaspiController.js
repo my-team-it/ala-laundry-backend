@@ -103,7 +103,7 @@ async function check(query) {
     }
   } else {
     console.log("machine ready TCL");
-    if (washing[washing.length - 1].is_door_open == 1) {
+    if (washing && washing[washing.length - 1].is_door_open == 1) {
       console.log("machine not ready2");
       return {
         txn_id: query.txn_id,
