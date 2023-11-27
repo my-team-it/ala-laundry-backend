@@ -35,10 +35,6 @@ async function processWashing(washing_id) {
 }
 
 async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
-  console.log(washing_id);
-  console.log(machineId);
-  console.log(isDoorOpenList);
-
   const json = await firebaseService.readData(machineId);
   isDoorOpenList[i] = json.output.isDoorOpen;
   if (i === 2) {
@@ -147,6 +143,7 @@ async function pay(query) {
   const prvTxnId = generateId();
   const mode_id = parseInt(query.service_id);
   const mode_price = (await modeService.readPrice(mode_id))[0].price;
+  
   const now = new Date();
   const washing = {
     start_time: now,
