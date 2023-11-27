@@ -29,6 +29,13 @@ const updatePayment = async (id, newpayment) => {
   ]);
 };
 
+const updatePaymenWithTxn_id = async (id, newpayment) => {
+  return await pool.query("UPDATE payment set ? WHERE txn_id = ?", [
+    newpayment,
+    id,
+  ]);
+};
+
 const deletePayment = async (id) => {
   const result = await pool.query("DELETE FROM payment WHERE id = ?", [id]);
   return result;
@@ -40,5 +47,6 @@ export default {
   readPayment,
   readPrvTxnId,
   updatePayment,
+  updatePaymenWithTxn_id,
   deletePayment,
 };

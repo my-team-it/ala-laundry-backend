@@ -112,6 +112,13 @@ async function check(query) {
     }
   }
 
+  const payment = {
+    txn_id: query.txn_id,
+    status: "UNPAID",
+  };
+
+  const newPayment = await paymentService.createPayment(payment);
+
   const response = {
     txn_id: query.txn_id,
     result: 0,
@@ -156,12 +163,11 @@ async function pay(query) {
   const washing_id = newWashing[0].insertId;
   // console.log(mode_priceD);
   const payment = {
-    txn_id: query.txn_id,
     prv_txn_id: prvTxnId,
     sum: mode_price,
     status: "PAID",
   };
-  const newPayment = await paymentService.createPayment(payment);
+  const newPayment = await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
   const payment_id = newPayment[0].insertId;
 
   const transaction = {
@@ -169,9 +175,11 @@ async function pay(query) {
     washing_id,
     payment_id,
   };
+
   const newTransaction = await transactionService.createTransaction(
     transaction
   );
+  
   const transaction_id = newTransaction[0].insertId;
 
   if (machine_id >= 1000) {
