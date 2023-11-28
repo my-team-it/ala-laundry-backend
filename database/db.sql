@@ -54,10 +54,10 @@ CREATE TABLE washing (
 -- creating a new table
 CREATE TABLE payment (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  txn_id INT UNSIGNED NOT NULL,
-  prv_txn_id INT UNSIGNED NOT NULL,
-  sum INT UNSIGNED NOT NULL,
-  status VARCHAR(10) NOT NULL
+  txn_id VARCHAR(18) NOT NULL,
+  prv_txn_id VARCHAR(20),
+  sum INT UNSIGNED,
+  status VARCHAR(10)
 );
 
 -- creating a new table
