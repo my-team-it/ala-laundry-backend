@@ -18,7 +18,7 @@ function stopInterval(machineId) {
 
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
-  console.log(washing);
+  // console.log(washing);
   if (washing.state === "ACTIVE") {
     const isDoorOpenList = [];
     for (let i = 0; i < 3; i++) {
@@ -87,7 +87,7 @@ async function check(query) {
   if (query.account >= 1000) {
     console.log("machine ready SAMSUNG");
     priceList = [priceList[6]];
-    console.log(priceList);
+    // console.log(priceList);
     if (firebaseState.output.isDoorOpen == 1) {
       console.log("machine not ready5");
       return {
@@ -98,6 +98,7 @@ async function check(query) {
       };
     }
   } else {
+    priceList = priceList.slice(0,6)
     console.log("machine ready TCL");
     if (washing.length > 1) {
       if (washing[washing.length - 1].is_door_open == 1) {
@@ -170,7 +171,6 @@ async function pay(query) {
   
   await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
   const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
-  console.log(updatedPayment)
   const payment_id = updatedPayment[0].id;
 
   const transaction = {
@@ -185,81 +185,81 @@ async function pay(query) {
   
   const transaction_id = newTransaction[0].insertId;
 
-  // if (machine_id >= 1000) {
-  //   await firebaseService.writeData({ machine_status: 1 }, machine_id);
+  if (machine_id >= 1000) {
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
-  //   setTimeout(async () => {
-  //     await firebaseService.writeStartStopData(
-  //       { machine_status: 1 },
-  //       machine_id
-  //     );
-  //     setTimeout(async () => {
-  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-  //         await firebaseService.writeStartStopData(
-  //           { machine_status: 0 },
-  //           machine_id
-  //         )
-  //       } else {
-  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
-  //         await firebaseService.writeStartStopData(
-  //           { machine_status: -1 },
-  //           machine_id
-  //         );
-  //       }
-  //       ;
-  //     }, 15 * 1000)
-  //     setTimeout(async () => {
-  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-  //         await firebaseService.writeStartStopData(
-  //           { machine_status: 1 },
-  //           machine_id
-  //         )
-  //       } else {
-  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
-  //         await firebaseService.writeStartStopData(
-  //           { machine_status: -1 },
-  //           machine_id
-  //         );
-  //       }
-  //       ;
-  //     }, 30 * 1000)
+    setTimeout(async () => {
+      await firebaseService.writeStartStopData(
+        { machine_status: 1 },
+        machine_id
+      );
+      setTimeout(async () => {
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          await firebaseService.writeStartStopData(
+            { machine_status: 0 },
+            machine_id
+          )
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 15 * 1000)
+      setTimeout(async () => {
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          await firebaseService.writeStartStopData(
+            { machine_status: 1 },
+            machine_id
+          )
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 30 * 1000)
 
-  //     setTimeout(async () => {
-  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-  //         const gaga = 2 + 2;
-  //       } else {
-  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
-  //         await firebaseService.writeStartStopData(
-  //           { machine_status: -1 },
-  //           machine_id
-  //         );
-  //       }
-  //       ;
-  //     }, 45 * 1000)
-  //   }, 30 * 1000)
-  // } else {
-  //   await firebaseService.writeData({ machine_status: 1 }, machine_id);
-  //   await firebaseService.writeStartStopData(
-  //     { machine_status: 1, mode: mode_id },
-  //     machine_id
-  //   );
+      setTimeout(async () => {
+        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+          const gaga = 2 + 2;
+        } else {
+          await firebaseService.writeData({ machine_status: -1 }, machine_id);
+          await firebaseService.writeStartStopData(
+            { machine_status: -1 },
+            machine_id
+          );
+        }
+        ;
+      }, 45 * 1000)
+    }, 30 * 1000)
+  } else {
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+    await firebaseService.writeStartStopData(
+      { machine_status: 1, mode: mode_id },
+      machine_id
+    );
 
-  //   setTimeout(async () => {
-  //     await firebaseService.writeData({ machine_status: -1 }, machine_id);
-  //     await firebaseService.writeStartStopData(
-  //       { machine_status: -1, mode: -1 },
-  //       machine_id
-  //     );
-  //   }, 17000);
+    setTimeout(async () => {
+      await firebaseService.writeData({ machine_status: -1 }, machine_id);
+      await firebaseService.writeStartStopData(
+        { machine_status: -1, mode: -1 },
+        machine_id
+      );
+    }, 17000);
 
-  //   if (!intervalIDs[machine_id]) {
-  //     intervalIDs[machine_id] = [];
-  //   }
+    if (!intervalIDs[machine_id]) {
+      intervalIDs[machine_id] = [];
+    }
 
-  //   intervalIDs[machine_id].push(
-  //     setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
-  //   );
-  // }
+    intervalIDs[machine_id].push(
+      setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
+    );
+  }
 
   return {
     txn_id: query.txn_id,
