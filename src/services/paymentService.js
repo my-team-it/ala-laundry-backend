@@ -14,6 +14,14 @@ const readPayment = async (id) => {
   return result;
 };
 
+const readPaymenWithTxn_id = async (txn_id) => {
+  const [result] = await pool.query(
+    "SELECT * FROM payment WHERE txn_id = ?",
+    [txn_id]
+  );
+  return result;
+};
+
 const readPrvTxnId = async (prv_txn_id) => {
   const [result] = await pool.query(
     "SELECT prv_txn_id FROM payment WHERE prv_txn_id = ?",
@@ -45,6 +53,7 @@ export default {
   readPayments,
   createPayment,
   readPayment,
+  readPaymenWithTxn_id,
   readPrvTxnId,
   updatePayment,
   updatePaymenWithTxn_id,

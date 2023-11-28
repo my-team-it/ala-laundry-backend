@@ -167,7 +167,9 @@ async function pay(query) {
     sum: mode_price,
     status: "PAID",
   };
-  const updatedPayment = await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
+  
+  await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
+  const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
   console.log(updatedPayment)
   const payment_id = updatedPayment[0].insertId;
 
