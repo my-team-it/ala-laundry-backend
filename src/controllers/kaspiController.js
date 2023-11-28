@@ -113,12 +113,12 @@ async function check(query) {
     }
   }
 
-  const payment = {
-    txn_id: query.txn_id,
-    status: "UNPAID",
-  };
+  // const payment = {
+  //   txn_id: query.txn_id,
+  //   status: "UNPAID",
+  // };
 
-  const newPayment = await paymentService.createPayment(payment);
+  // const newPayment = await paymentService.createPayment(payment);
 
   const response = {
     txn_id: query.txn_id,
@@ -163,15 +163,17 @@ async function pay(query) {
   const newWashing = await washingService.createWashing(washing);
   const washing_id = newWashing[0].insertId;
 
+  
   const payment = {
+    txn_id: query.txn_id,
     prv_txn_id: prvTxnId,
     sum: mode_price,
     status: "PAID",
   };
-  
-  await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
-  const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
-  const payment_id = updatedPayment[0].id;
+  const newPayment = await paymentService.createPayment(payment);
+  // await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
+  // const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
+  const payment_id = newPayment[0].insertId;
 
   const transaction = {
     transaction_date: now,
