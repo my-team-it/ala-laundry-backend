@@ -182,81 +182,81 @@ async function pay(query) {
   
   const transaction_id = newTransaction[0].insertId;
 
-  if (machine_id >= 1000) {
-    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+  // if (machine_id >= 1000) {
+  //   await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
-    setTimeout(async () => {
-      await firebaseService.writeStartStopData(
-        { machine_status: 1 },
-        machine_id
-      );
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData(
-            { machine_status: 0 },
-            machine_id
-          )
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 15 * 1000)
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData(
-            { machine_status: 1 },
-            machine_id
-          )
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 30 * 1000)
+  //   setTimeout(async () => {
+  //     await firebaseService.writeStartStopData(
+  //       { machine_status: 1 },
+  //       machine_id
+  //     );
+  //     setTimeout(async () => {
+  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+  //         await firebaseService.writeStartStopData(
+  //           { machine_status: 0 },
+  //           machine_id
+  //         )
+  //       } else {
+  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  //         await firebaseService.writeStartStopData(
+  //           { machine_status: -1 },
+  //           machine_id
+  //         );
+  //       }
+  //       ;
+  //     }, 15 * 1000)
+  //     setTimeout(async () => {
+  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+  //         await firebaseService.writeStartStopData(
+  //           { machine_status: 1 },
+  //           machine_id
+  //         )
+  //       } else {
+  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  //         await firebaseService.writeStartStopData(
+  //           { machine_status: -1 },
+  //           machine_id
+  //         );
+  //       }
+  //       ;
+  //     }, 30 * 1000)
 
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          const gaga = 2 + 2;
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 45 * 1000)
-    }, 30 * 1000)
-  } else {
-    await firebaseService.writeData({ machine_status: 1 }, machine_id);
-    await firebaseService.writeStartStopData(
-      { machine_status: 1, mode: mode_id },
-      machine_id
-    );
+  //     setTimeout(async () => {
+  //       if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
+  //         const gaga = 2 + 2;
+  //       } else {
+  //         await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  //         await firebaseService.writeStartStopData(
+  //           { machine_status: -1 },
+  //           machine_id
+  //         );
+  //       }
+  //       ;
+  //     }, 45 * 1000)
+  //   }, 30 * 1000)
+  // } else {
+  //   await firebaseService.writeData({ machine_status: 1 }, machine_id);
+  //   await firebaseService.writeStartStopData(
+  //     { machine_status: 1, mode: mode_id },
+  //     machine_id
+  //   );
 
-    setTimeout(async () => {
-      await firebaseService.writeData({ machine_status: -1 }, machine_id);
-      await firebaseService.writeStartStopData(
-        { machine_status: -1, mode: -1 },
-        machine_id
-      );
-    }, 17000);
+  //   setTimeout(async () => {
+  //     await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  //     await firebaseService.writeStartStopData(
+  //       { machine_status: -1, mode: -1 },
+  //       machine_id
+  //     );
+  //   }, 17000);
 
-    if (!intervalIDs[machine_id]) {
-      intervalIDs[machine_id] = [];
-    }
+  //   if (!intervalIDs[machine_id]) {
+  //     intervalIDs[machine_id] = [];
+  //   }
 
-    intervalIDs[machine_id].push(
-      setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
-    );
-  }
+  //   intervalIDs[machine_id].push(
+  //     setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
+  //   );
+  // }
 
   return {
     txn_id: query.txn_id,
