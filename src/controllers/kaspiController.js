@@ -171,7 +171,7 @@ async function pay(query) {
   await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
   const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
   console.log(updatedPayment)
-  const payment_id = updatedPayment[0].insertId;
+  const payment_id = updatedPayment[0].id;
 
   const transaction = {
     transaction_date: now,
