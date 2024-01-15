@@ -152,6 +152,15 @@ async function pay(query) {
   const mode_id = parseInt(query.service_id);
   const mode_price = (await modeService.readPrice(mode_id))[0].price;
   
+  if (parseInt(query.sum) !== mode_price) {
+    return {
+      txn_id: query.txn_id,
+      result: 5,
+      bin: "870430301264",
+      comment: "Incorrect price",
+    };
+  }
+
   const now = new Date();
   const washing = {
     start_time: now,
