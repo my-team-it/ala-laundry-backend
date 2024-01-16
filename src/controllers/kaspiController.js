@@ -92,9 +92,9 @@ async function check(query) {
       console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
-        result: 5,
+        result: 6,
         bin: "870430301264",
-        comment: "Machine is not ready",
+        comment: "The machine is busy",
       };
     }
   } else {
@@ -105,9 +105,9 @@ async function check(query) {
         console.log("machine not ready2");
         return {
           txn_id: query.txn_id,
-          result: 5,
+          result: 6,
           bin: "870430301264",
-          comment: "Machine is not ready",
+          comment: "The machine is busy",
         };
       }
     }
@@ -142,9 +142,9 @@ async function pay(query) {
   if (lastState[0] === machine_id) {
     return {
       txn_id: query.txn_id,
-      result: 5,
+      result: 6,
       bin: "870430301264",
-      comment: "Machine is not ready",
+      comment: "The machine is busy",
     };
   }
 
