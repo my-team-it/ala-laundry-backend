@@ -10,6 +10,8 @@ const OFF = 0;
 const intervalIDs = [];
 const isWashingStarted = [];
 
+const checkIntervalTimeMin = 1
+
 function stopInterval(machineId) {
   while (intervalIDs[machineId].length) {
     clearInterval(intervalIDs[machineId].pop());
@@ -19,32 +21,36 @@ function stopInterval(machineId) {
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
   // console.log(washing);
+  const numCheck = 3
+  
   if (washing.state === "ACTIVE") {
     const isDoorOpenList = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < numCheck; i++) {
       setTimeout(
         checkDoorStatus,
-        (i + 1) * 30 * 1000,
+        (i + 1) * 15 * 1000,
         i,
         washing_id,
         washing.machine_id,
-        isDoorOpenList
+        isDoorOpenList,
+        numCheck
       );
     }
   }
 }
 
-async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList) {
+async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList, numCheck) {
   const json = await firebaseService.readData(machineId);
   isDoorOpenList[i] = json.output.isDoorOpen;
-  if (i === 2) {
-    if (!isDoorOpenList[0] && !isDoorOpenList[1] && !isDoorOpenList[2]) {
+  if (i === numCheck - 1) {
+    const isDoorClosedOnAllChecks = isDoorOpenList.every(status => !status);
+    if (isDoorClosedOnAllChecks) {
       await washingService.updateWashing(washing_id, {
         state: "AVAILABLE",
         end_timer_val: json.output.timer,
         is_door_open: 0,
       });
-      
+
       await firebaseService.writeData({ machine_status: 0 }, machineId);
       stopInterval(parseInt(machineId));
     
@@ -163,7 +169,7 @@ async function pay(query) {
   const now = new Date();
   const washing = {
     start_time: now,
-    is_door_open: true,
+    is_door_open: 1,
     state: "ACTIVE",
     mode_id,
     machine_id,
@@ -218,6 +224,7 @@ async function pay(query) {
         }
         ;
       }, 15 * 1000)
+      
       setTimeout(async () => {
         if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
           await firebaseService.writeStartStopData(
@@ -267,7 +274,7 @@ async function pay(query) {
     }
 
     intervalIDs[machine_id].push(
-      setInterval(processWashing, 3 * 60 * 1000, washing_id, transaction_id)
+      setInterval(processWashing, checkIntervalTimeMin * 60 * 1000, washing_id, transaction_id)
     );
   }
 
