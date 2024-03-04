@@ -4,11 +4,9 @@ import paymentService from "../services/paymentService.js";
 import transactionService from "../services/transactionService.js";
 import firebaseService from "../services/firebaseService.js";
 
-const ON = 1;
-const OFF = 0;
+import { BIN } from "../config.js";
 
 const intervalIDs = [];
-const isWashingStarted = [];
 
 const checkIntervalTimeMin = 1
 
@@ -78,7 +76,7 @@ async function check(query) {
     return {
       txn_id: query.txn_id,
       result: 5,
-      bin: "870430301264",
+      bin: BIN,
       comment: "Machine is not ready",
     };
   }
@@ -98,7 +96,7 @@ async function check(query) {
       return {
         txn_id: query.txn_id,
         result: 6,
-        bin: "870430301264",
+        bin: BIN,
         comment: "The machine is busy",
       };
     }
@@ -111,7 +109,7 @@ async function check(query) {
         return {
           txn_id: query.txn_id,
           result: 6,
-          bin: "870430301264",
+          bin: BIN,
           comment: "The machine is busy",
         };
       }
@@ -131,7 +129,7 @@ async function check(query) {
     fields: {
       services: priceList,
     },
-    bin: "870430301264",
+    bin: BIN,
     comment: "Item found",
   };
   console.log("Item found");
@@ -148,7 +146,7 @@ async function pay(query) {
     return {
       txn_id: query.txn_id,
       result: 6,
-      bin: "870430301264",
+      bin: BIN,
       comment: "The machine is busy",
     };
   }
@@ -161,7 +159,7 @@ async function pay(query) {
     return {
       txn_id: query.txn_id,
       result: 5,
-      bin: "870430301264",
+      bin: BIN,
       comment: "Incorrect price",
     };
   }
@@ -283,7 +281,7 @@ async function pay(query) {
     prv_txn_id: prvTxnId,
     result: 0,
     sum: parseInt(query.sum),
-    bin: "870430301264",
+    bin: BIN,
     comment: "Pay item found",
   };
 }
@@ -322,7 +320,7 @@ export const getPrice = async (req, res) => {
   let json;
   try {
     const result = await modeService.readPrice(req.query.service_id);
-    json = { sum: result[0].price, bin: "870430301264" };
+    json = { sum: result[0].price, bin: BIN };
   } catch (err) {
     json = { result: 1, comment: "Service not found" };
   } finally {

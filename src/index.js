@@ -1,6 +1,8 @@
-import https from "https";
 import fs from "fs";
+import https from "https";
+
 import app from "./app.js";
+import { HTTP_PORT, HTTPS_PORT } from "./config.js";
 
 https
   .createServer(
@@ -10,10 +12,10 @@ https
     },
     app.app
   )
-  .listen(443, () => {
-    console.log(`App (HTTPS) listening on port ${443}`);
+  .listen(HTTPS_PORT, () => {
+    console.log(`App (HTTPS) listening on port ${HTTPS_PORT}`);
   });
 
-app.appHTTP.listen(80, () => {
-  console.log(`App (HTTP) listening on port ${80}`);
+app.appHTTP.listen(HTTP_PORT, () => {
+  console.log(`App (HTTP) listening on port ${HTTP_PORT}`);
 });
