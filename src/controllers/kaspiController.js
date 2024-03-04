@@ -322,7 +322,7 @@ export const getPrice = async (req, res) => {
   let json;
   try {
     const result = await modeService.readPrice(req.query.service_id);
-    json = { sum: result[0].price };
+    json = { sum: result[0].price, bin: "870430301264" };
   } catch (err) {
     json = { result: 1, comment: "Service not found" };
   } finally {
