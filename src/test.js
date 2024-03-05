@@ -3,7 +3,7 @@ import washingService from "./services/washingService.js";
 async function test(washing_id) {
     const isDoorOpenList1 = await washingService.readIsDoorOpenStatesByID(washing_id);
     console.log(isDoorOpenList1);
-    const isDoorClosedOnAllChecks1 = isDoorOpenList1.every(status => !status);
+    const isDoorClosedOnAllChecks1 = Object.values(isDoorOpenList1).every(status => !status);
     console.log(isDoorClosedOnAllChecks1);
 
     const key1 = "is_door_open_"+1;
@@ -23,7 +23,7 @@ async function test(washing_id) {
 
     const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
     console.log(isDoorOpenList);
-    const isDoorClosedOnAllChecks = isDoorOpenList.every(status => !status);
+    const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
     console.log(isDoorClosedOnAllChecks);
 }
 
