@@ -15,7 +15,7 @@ const readLastWashingStateByMachineID = async (machine_id) => {
 
 const readIsDoorOpenStatesByID = async (washing_id) => {
   const [rows] = await pool.query(
-    "SELECT state FROM washing WHERE id = ?",
+    "SELECT is_door_open_1, is_door_open_2, is_door_open_3 FROM washing WHERE id = ?",
     [washing_id]
   );
   return rows[0]
