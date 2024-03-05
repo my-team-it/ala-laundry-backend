@@ -18,11 +18,9 @@ function stopInterval(machineId) {
 
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
-  // console.log(washing);
   const numCheck = 3
   
   if (washing.state === "ACTIVE") {
-    const isDoorOpenList = [];
     for (let i = 0; i < numCheck; i++) {
       setTimeout(
         checkDoorStatus,
@@ -30,17 +28,19 @@ async function processWashing(washing_id) {
         i,
         washing_id,
         washing.machine_id,
-        isDoorOpenList,
         numCheck
       );
     }
   }
 }
 
-async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList, numCheck) {
+async function checkDoorStatus(i, washing_id, machineId, numCheck) {
   const json = await firebaseService.readData(machineId);
-  isDoorOpenList[i] = json.output.isDoorOpen;
+  const key = "is_door_open_"+(i+1);
+  const value = json.output.isDoorOpen;
+  washingService.updateIsDoorOpenByID(washing_id, {key: value})
   if (i === numCheck - 1) {
+    const isDoorOpenList = washingService.readIsDoorOpenStatesByID(washing_id);
     const isDoorClosedOnAllChecks = isDoorOpenList.every(status => !status);
     if (isDoorClosedOnAllChecks) {
       await washingService.updateWashing(washing_id, {
@@ -51,7 +51,6 @@ async function checkDoorStatus(i, washing_id, machineId, isDoorOpenList, numChec
 
       await firebaseService.writeData({ machine_status: 0 }, machineId);
       stopInterval(parseInt(machineId));
-    
     }
   }
 }
