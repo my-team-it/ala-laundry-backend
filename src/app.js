@@ -25,6 +25,7 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 appHTTP.use(morgan("dev"));
 appHTTP.use(express.urlencoded({ extended: false }));
+
 // routes
 app.use("/kaspi", kaspiRoutes);
 app.use("/machine", machineRoutes);

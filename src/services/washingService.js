@@ -13,6 +13,14 @@ const readLastWashingStateByMachineID = async (machine_id) => {
   return rows;
 };
 
+const readIsDoorOpenStatesByID = async (washing_id) => {
+  const [rows] = await pool.query(
+    "SELECT is_door_open_1, is_door_open_2, is_door_open_3 FROM washing WHERE id = ?",
+    [washing_id]
+  );
+  return rows[0]
+}
+
 const readLastByMachineID = async (machine_id) => {
   const [rows] = await pool.query(
     "SELECT * FROM washing WHERE machine_id = ?",
@@ -44,6 +52,13 @@ const updateWashing = async (id, newwashing) => {
   ]);
 };
 
+const updateIsDoorOpenByID = async (id, newwashing) => {
+  return await pool.query("UPDATE washing set ? WHERE id = ?", [
+    newwashing,
+    id,
+  ]);
+};
+
 const deleteWashing = async (req, res) => {
   const result = await pool.query("DELETE FROM washing WHERE id = ?", [id]);
   return result;
@@ -52,10 +67,12 @@ const deleteWashing = async (req, res) => {
 export default {
   readWashings,
   readLastWashingStateByMachineID,
+  readIsDoorOpenStatesByID,
   readLastByMachineID,
   readLastWashingState,
   createWashing,
   readWashing,
   updateWashing,
+  updateIsDoorOpenByID,
   deleteWashing,
 };
