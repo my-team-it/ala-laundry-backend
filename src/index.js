@@ -2,10 +2,7 @@ import fs from "fs";
 import https from "https";
 
 import app from "./app.js";
-import test from "./test.js"
 import { HTTP_PORT, HTTPS_PORT } from "./config.js";
-
-test.test(9)
 
 https
   .createServer(
