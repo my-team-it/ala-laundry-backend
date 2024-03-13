@@ -38,7 +38,7 @@ async function checkDoorStatus(i, washing_id, machineId, numCheck) {
   const json = await firebaseService.readData(machineId);
   const key = "is_door_open_"+(i+1);
   const value = json.output.isDoorOpen;
-  await washingService.updateIsDoorOpenByID(washing_id, {key: value})
+  await washingService.updateIsDoorOpenByID(washing_id, {[key]: value})
   if (i === numCheck - 1) {
     const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
     const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
