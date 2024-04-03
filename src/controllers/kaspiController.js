@@ -41,7 +41,7 @@ async function checkDoorStatus(i, washing_id, machineId, numCheck) {
   
   // Ensure you're passing an object with dynamically set property names
   let updateObj = {};
-  updateObj[key] = value; // Set the dynamic key-value pair
+  updateObj[[key]] = value; // Set the dynamic key-value pair
   
   await washingService.updateIsDoorOpenByID(washing_id, updateObj); // Pass the correct object
   
