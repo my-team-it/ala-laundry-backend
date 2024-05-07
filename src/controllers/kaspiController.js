@@ -37,18 +37,26 @@ async function processWashing(washing_id) {
 
 async function checkDoorStatus(i, washing_id, machineId, numCheck) {
   const json = await firebaseService.readData(machineId);
-  const key = "is_door_open_"+(i+1);
+  const key = `is_door_open_${i + 1}`; // Correctly form the key name
   const value = json.output.isDoorOpen;
-  await washingService.updateIsDoorOpenByID(washing_id, {[key]: value})
+  
+  // Ensure you're passing an object with dynamically set property names
+  let updateObj = {};
+  updateObj[[key]] = value; // Set the dynamic key-value pair
+  
+  await washingService.updateIsDoorOpenByID(washing_id, updateObj); // Pass the correct object
+  
   if (i === numCheck - 1) {
     const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
     const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
+    
     if (isDoorClosedOnAllChecks) {
       stopInterval(parseInt(machineId));
+      
       await washingService.updateWashing(washing_id, {
         state: "AVAILABLE",
         end_timer_val: json.output.timer,
-        is_door_open: 0,
+        is_door_open: 0, // Assuming your schema has an `is_door_open` column for the final state
       });
 
       await firebaseService.writeData({ machine_status: 0 }, machineId);
@@ -56,6 +64,7 @@ async function checkDoorStatus(i, washing_id, machineId, numCheck) {
     }
   }
 }
+
 
 function generateId() {
   let prvTxnId;
