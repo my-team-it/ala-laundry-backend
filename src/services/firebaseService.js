@@ -65,6 +65,16 @@ const writeStartStopData = async (data, machine_id) => {
   return true;
 };
 
+const writeCheckData = async (data, machine_id) => {
+  const database = getDatabase(app);
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["isChecking"] = data.isChecking;
+
+  return update(child(ref(database), `${machine_id}/input/isChecking`), updates);
+};
+
 const writeAdminData = async (data, machine_id) => {
   const database = getDatabase(app);
 
@@ -108,6 +118,7 @@ const onTimerChange = (machine_id) => {
 
 export default {
   writeData,
+  writeCheckData,
   writeAdminData,
   writeStartStopData,
   readData,
