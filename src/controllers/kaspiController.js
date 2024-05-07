@@ -263,6 +263,13 @@ async function pay(query) {
       }, 45 * 1000)
     }, 30 * 1000)
   } else {
+    setTimeout(async () => {
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        is_door_open: 0, // Assuming your schema has an `is_door_open` column for the final state
+      });
+    }, 15 * 60 * 1000);
+
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
     await firebaseService.writeStartStopData(
       { machine_status: 1, mode: mode_id },
