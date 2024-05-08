@@ -17,7 +17,7 @@ function stopInterval(machineId) {
 }
 
 async function processWashing(washing_id) {
-  await firebaseService.writeCheckData({ isChecking: 1 }, machineId);
+  await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
   const [washing] = await washingService.readWashing(washing_id);
   const numCheck = 3
   
@@ -35,8 +35,8 @@ async function processWashing(washing_id) {
   }
 }
 
-async function checkDoorStatus(i, washing_id, machineId, numCheck) {
-  const json = await firebaseService.readData(machineId);
+async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
+  const json = await firebaseService.readData(machine_id);
   const key = `is_door_open_${i + 1}`; // Correctly form the key name
   const value = json.output.isDoorOpen;
   
@@ -51,7 +51,7 @@ async function checkDoorStatus(i, washing_id, machineId, numCheck) {
     const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
     
     if (isDoorClosedOnAllChecks) {
-      stopInterval(parseInt(machineId));
+      stopInterval(parseInt(machine_id));
       
       await washingService.updateWashing(washing_id, {
         state: "AVAILABLE",
@@ -59,8 +59,8 @@ async function checkDoorStatus(i, washing_id, machineId, numCheck) {
         is_door_open: 0, // Assuming your schema has an `is_door_open` column for the final state
       });
 
-      await firebaseService.writeData({ machine_status: 0 }, machineId);
-      await firebaseService.writeCheckData({ isChecking: 0 }, machineId);
+      await firebaseService.writeData({ machine_status: 0 }, machine_id);
+      await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
     }
   }
 }
