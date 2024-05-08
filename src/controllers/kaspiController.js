@@ -17,8 +17,8 @@ function stopInterval(machineId) {
 }
 
 async function processWashing(washing_id) {
-  await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
   const [washing] = await washingService.readWashing(washing_id);
+  await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
   const numCheck = 3
   
   if (washing.state === "ACTIVE") {
