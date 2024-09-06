@@ -210,65 +210,61 @@ async function pay(query) {
   const transaction_id = newTransaction[0].insertId;
 
   if (machine_id >= 1000) {
+    // Включение машины
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
+    // Задержка для включения машины и затем выбор режима
     setTimeout(async () => {
-      await firebaseService.writeStartStopData(
-        { machine_status: 1 },
-        machine_id
-      );
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData(
-            { machine_status: 0 },
-            machine_id
-          )
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 15 * 1000)
-      
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData(
-            { machine_status: 1 },
-            machine_id
-          )
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 30 * 1000)
+      const machineState = await firebaseService.readData(machine_id);
 
-      setTimeout(async () => {
-        if ((await firebaseService.readData(machine_id)).output.isDoorOpen == 0) {
-          const gaga = 2 + 2;
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-          await firebaseService.writeStartStopData(
-            { machine_status: -1 },
-            machine_id
-          );
-        }
-        ;
-      }, 45 * 1000)
-    }, 30 * 1000)
+      if (machineState.machine_status === 1) {  // Проверка, что машина включена
+        await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+
+        setTimeout(async () => {
+          const updatedState = await firebaseService.readData(machine_id);
+
+          if (updatedState.output.isDoorOpen == 0) {  // Если дверь закрыта
+            await firebaseService.writeStartStopData({ machine_status: 0 }, machine_id);
+          } else {
+            // Сброс, если дверь все еще открыта
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 15000);
+
+        // Проверка состояния через 30 секунд
+        setTimeout(async () => {
+          const updatedState = await firebaseService.readData(machine_id);
+
+          if (updatedState.output.isDoorOpen == 0) {
+            await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+          } else {
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 30000);
+
+        // Последняя проверка через 45 секунд
+        setTimeout(async () => {
+          const finalState = await firebaseService.readData(machine_id);
+
+          if (finalState.output.isDoorOpen == 0) {
+            const gaga = 2 + 2;  // Ваша дополнительная логика, если требуется
+          } else {
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 45000);
+      }
+    }, 30000);  // Задержка 30 секунд для включения машины
   } else {
+    // Управление для других машин
     setTimeout(async () => {
       await washingService.updateWashing(washing_id, {
         state: "AVAILABLE",
-        is_door_open: 0, // Assuming your schema has an `is_door_open` column for the final state
+        is_door_open: 0,  // Обновляем состояние дверцы
       });
-    }, 15 * 60 * 1000);
+    }, 15 * 60 * 1000);  // Ожидание 15 минут
 
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
     await firebaseService.writeStartStopData(
@@ -276,6 +272,7 @@ async function pay(query) {
       machine_id
     );
 
+    // Сброс через 17 секунд
     setTimeout(async () => {
       await firebaseService.writeData({ machine_status: -1 }, machine_id);
       await firebaseService.writeStartStopData(
@@ -284,6 +281,7 @@ async function pay(query) {
       );
     }, 17000);
 
+    // Управление интервалами для периодической проверки состояния
     if (!intervalIDs[machine_id]) {
       intervalIDs[machine_id] = [];
     }
