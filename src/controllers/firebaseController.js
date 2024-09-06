@@ -21,8 +21,26 @@ export const machineOnWithMode = async (req, res) => {
       { machine_status: 1, mode: parseInt(req.params.mode) },
       req.params.id
     );
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
+    // Добавляем задержку для выбора режима после включения машины
+    setTimeout(async () => {
+      // Проверяем состояние машины перед выбором режима
+      const machineState = await firebaseService.readData(req.params.id);
+
+      // Если машина включена, выбираем режим
+      if (machineState.machine_status === 1) {
+        await firebaseService.writeData(
+          { mode: parseInt(req.params.mode) },  // Устанавливаем режим после включения
+          req.params.id
+        );
+
+        // Читаем данные машины для подтверждения
+        const result = await firebaseService.readData(req.params.id);
+        res.json({ data: result, status: "success" });
+      } else {
+        // Если машина не включена, возвращаем ошибку
+        res.status(500).json({ error: "Machine did not start properly." });
+      }
+    }, 1000);  // Задержка в 1 секунду для надежного включения машины
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -42,19 +60,41 @@ export const machineOff = async (req, res) => {
   }
 };
 
+
 export const machineStart = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
+    // Включаем машину (machine_status = 1)
     await firebaseService.writeStartStopData(
-      { machine_status: 1, mode: parseInt(req.params.mode) },
+      { machine_status: 1 }, // Сначала включаем машину без выбора режима
       req.params.id
     );
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
+
+    // Добавляем задержку для выбора режима после включения машины
+    setTimeout(async () => {
+      // Проверяем текущее состояние машины
+      const machineState = await firebaseService.readData(req.params.id);
+
+      // Если машина включена (machine_status = 1), выбираем режим
+      if (machineState.machine_status === 1) {
+        await firebaseService.writeStartStopData(
+          { mode: parseInt(req.params.mode) },  // Устанавливаем режим после включения
+          req.params.id
+        );
+
+        // Читаем данные машины для подтверждения
+        const result = await firebaseService.readData(req.params.id);
+        res.json({ data: result, status: "success" });
+      } else {
+        // Если машина не включена, возвращаем ошибку
+        res.status(500).json({ error: "Machine did not start properly." });
+      }
+    }, 1000);  // Задержка 1 секунда для надежного включения машины
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 export const machineStop = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
