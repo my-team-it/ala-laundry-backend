@@ -99,16 +99,20 @@ export const machineStart = async (req, res) => {
 export const machineStop = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
-    await firebaseService.writeStartStopData(
-      { machine_status: 0 },
-      req.params.id
-    );
+    const machineState = await firebaseService.readData(req.params.id);
+    
+    // Проверяем, не установлено ли значение -1, чтобы избежать ненужных операций
+    if (machineState.machine_status !== -1) {
+      await firebaseService.writeStartStopData({ machine_status: 0 }, req.params.id); // Отключаем машину
+    }
+
     const result = await firebaseService.readData(req.params.id);
     res.json({ data: result, status: "success" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 export const machine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
