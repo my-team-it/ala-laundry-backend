@@ -3,25 +3,24 @@ import washingService from "../services/washingService.js";
 import paymentService from "../services/paymentService.js";
 import transactionService from "../services/transactionService.js";
 import firebaseService from "../services/firebaseService.js";
+
 import { BIN } from "../config.js";
 
 const intervalIDs = [];
-const checkIntervalTimeMin = 1;
+
+const checkIntervalTimeMin = 1
 
 function stopInterval(machineId) {
-  if (intervalIDs[machineId]) {
-    while (intervalIDs[machineId].length) {
-      clearInterval(intervalIDs[machineId].pop());
-    }
+  while (intervalIDs[machineId].length) {
+    clearInterval(intervalIDs[machineId].pop());
   }
 }
 
-// Функция для проверки состояния двери и подготовка машины к следующему циклу
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
   await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
-  const numCheck = 3;
-
+  const numCheck = 3
+  
   if (washing.state === "ACTIVE") {
     for (let i = 0; i < numCheck; i++) {
       setTimeout(
@@ -36,46 +35,65 @@ async function processWashing(washing_id) {
   }
 }
 
-// Функция проверки состояния двери и логика завершения стирки
 async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
-  const json = await firebaseService.readData(machine_id);
-  const value = json.output.isDoorOpen; // Чтение состояния двери
-  let updateObj = { [`is_door_open_${i + 1}`]: value }; // Обновление состояния дверей
-  await washingService.updateIsDoorOpenByID(washing_id, updateObj);
-
-  if (i === numCheck - 1) {
-    const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
-    const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => status === 1);
-
-    if (isDoorClosedOnAllChecks) {
-      stopInterval(parseInt(machine_id));
-      await washingService.updateWashing(washing_id, {
-        state: "AVAILABLE",
-        end_timer_val: json.output.timer,
-        is_door_open: 0
-      });
-      await firebaseService.writeData({ machine_status: 0 }, machine_id);
-      await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
-    } else {
-      await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  try {
+    const json = await firebaseService.readData(machine_id);
+    if (!json || !json.output) {
+      console.log(`Machine data not found for machine ID: ${machine_id}`);
+      return;
     }
+
+    const value = json.output.isDoorOpen;
+    
+    // Сохраняем состояние двери в washing_service
+    let updateObj = {};
+    updateObj[`is_door_open_${i + 1}`] = value;
+    await washingService.updateIsDoorOpenByID(washing_id, updateObj);
+    
+    // Если это последняя проверка, анализируем результаты
+    if (i === numCheck - 1) {
+      const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
+      const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => status === 0);
+      
+      if (isDoorClosedOnAllChecks) {
+        stopInterval(parseInt(machine_id));
+        
+        await washingService.updateWashing(washing_id, {
+          state: "AVAILABLE",
+          end_timer_val: json.output.timer,
+          is_door_open: 0, // Окончательное состояние двери
+        });
+
+        await firebaseService.writeData({ machine_status: 0 }, machine_id);
+        await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
+      } else {
+        console.log(`Door is not closed on all checks for washing ID: ${washing_id}`);
+      }
+    }
+  } catch (error) {
+    console.log(`Error during door status check: ${error.message}`);
   }
 }
 
+
+
 function generateId() {
   let prvTxnId;
+
   do {
     prvTxnId = Math.floor(Math.random() * Math.pow(10, 19));
   } while (!paymentService.readPrvTxnId(prvTxnId));
+  console.log(prvTxnId);
   return prvTxnId;
 }
 
 async function check(query) {
   const washing = await washingService.readLastByMachineID(query.account);
   const firebaseState = await firebaseService.readData(query.account);
-  const now = new Date().getTime();
 
+  const now = new Date().getTime();
   if (now / 1000 - firebaseState.output.timer > 10) {
+    console.log("machine not ready1");
     return {
       txn_id: query.txn_id,
       result: 5,
@@ -91,8 +109,11 @@ async function check(query) {
   }));
 
   if (query.account >= 1000) {
-    priceList = [priceList[6]]; // Samsung
+    console.log("machine ready SAMSUNG");
+    priceList = [priceList[6]];
+    // console.log(priceList);
     if (firebaseState.output.isDoorOpen == 1) {
+      console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
         result: 6,
@@ -101,29 +122,46 @@ async function check(query) {
       };
     }
   } else {
-    priceList = priceList.slice(0, 6); // TCL
-    if (washing.length > 1 && washing[washing.length - 1].is_door_open == 1) {
-      return {
-        txn_id: query.txn_id,
-        result: 6,
-        bin: BIN,
-        comment: "The machine is busy",
-      };
+    priceList = priceList.slice(0,6)
+    console.log("machine ready TCL");
+    if (washing.length > 1) {
+      if (washing[washing.length - 1].is_door_open == 1) {
+        console.log("machine not ready2");
+        return {
+          txn_id: query.txn_id,
+          result: 6,
+          bin: BIN,
+          comment: "The machine is busy",
+        };
+      }
     }
   }
 
-  return {
+  // const payment = {
+  //   txn_id: query.txn_id,
+  //   status: "UNPAID",
+  // };
+
+  // const newPayment = await paymentService.createPayment(payment);
+
+  const response = {
     txn_id: query.txn_id,
     result: 0,
-    fields: { services: priceList },
+    fields: {
+      services: priceList,
+    },
     bin: BIN,
     comment: "Item found",
   };
+  console.log("Item found");
+  return response;
 }
 
 async function pay(query) {
   const machine_id = parseInt(query.account);
-  const lastState = await washingService.readLastWashingStateByMachineID(machine_id);
+  const lastState = await washingService.readLastWashingStateByMachineID(
+    machine_id
+  );
 
   if (lastState[0] === machine_id) {
     return {
@@ -137,7 +175,7 @@ async function pay(query) {
   const prvTxnId = generateId();
   const mode_id = parseInt(query.service_id);
   const mode_price = (await modeService.readPrice(mode_id))[0].price;
-
+  
   if (parseInt(query.sum) !== mode_price) {
     return {
       txn_id: query.txn_id,
@@ -158,47 +196,111 @@ async function pay(query) {
   const newWashing = await washingService.createWashing(washing);
   const washing_id = newWashing[0].insertId;
 
+  
   const payment = {
     txn_id: query.txn_id,
     prv_txn_id: prvTxnId,
     sum: mode_price,
     status: "PAID",
   };
-  await paymentService.createPayment(payment);
+  const newPayment = await paymentService.createPayment(payment);
+  // await paymentService.updatePaymenWithTxn_id(query.txn_id,payment);
+  // const updatedPayment = await paymentService.readPaymenWithTxn_id(query.txn_id);
+  const payment_id = newPayment[0].insertId;
 
   const transaction = {
     transaction_date: now,
     washing_id,
-    payment_id: newWashing[0].insertId,
+    payment_id,
   };
-  await transactionService.createTransaction(transaction);
 
-  await firebaseService.writeData({ machine_status: 1 }, machine_id);
+  const newTransaction = await transactionService.createTransaction(
+    transaction
+  );
+  
+  const transaction_id = newTransaction[0].insertId;
 
-  setTimeout(async () => {
-    const machineState = await firebaseService.readData(machine_id);
-    if (machineState.machine_status === 1 && machineState.output.isDoorOpen == 0) {
-      await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+  if (machine_id >= 1000) {
+    // Включение машины
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
-      setTimeout(async () => {
-        const updatedState = await firebaseService.readData(machine_id);
-        if (updatedState.output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData({ machine_status: 0 }, machine_id);
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-        }
-      }, 15000);
+    // Задержка для включения машины и затем выбор режима
+    setTimeout(async () => {
+      const machineState = await firebaseService.readData(machine_id);
 
-      setTimeout(async () => {
-        const updatedState = await firebaseService.readData(machine_id);
-        if (updatedState.output.isDoorOpen == 0) {
-          await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
-        } else {
-          await firebaseService.writeData({ machine_status: -1 }, machine_id);
-        }
-      }, 30000);
+      if (machineState.machine_status === 1) {  // Проверка, что машина включена
+        await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+
+        setTimeout(async () => {
+          const updatedState = await firebaseService.readData(machine_id);
+
+          if (updatedState.output.isDoorOpen == 0) {  // Если дверь закрыта
+            await firebaseService.writeStartStopData({ machine_status: 0 }, machine_id);
+          } else {
+            // Сброс, если дверь все еще открыта
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 15000);
+
+        // Проверка состояния через 30 секунд
+        setTimeout(async () => {
+          const updatedState = await firebaseService.readData(machine_id);
+
+          if (updatedState.output.isDoorOpen == 0) {
+            await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+          } else {
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 30000);
+
+        // Последняя проверка через 45 секунд
+        setTimeout(async () => {
+          const finalState = await firebaseService.readData(machine_id);
+
+          if (finalState.output.isDoorOpen == 0) {
+            const gaga = 2 + 2;  // Ваша дополнительная логика, если требуется
+          } else {
+            await firebaseService.writeData({ machine_status: -1 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+          }
+        }, 45000);
+      }
+    }, 30000);  // Задержка 30 секунд для включения машины
+  } else {
+    // Управление для других машин
+    setTimeout(async () => {
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        is_door_open: 0,  // Обновляем состояние дверцы
+      });
+    }, 15 * 60 * 1000);  // Ожидание 15 минут
+
+    await firebaseService.writeData({ machine_status: 1 }, machine_id);
+    await firebaseService.writeStartStopData(
+      { machine_status: 1, mode: mode_id },
+      machine_id
+    );
+
+    // Сброс через 17 секунд
+    setTimeout(async () => {
+      await firebaseService.writeData({ machine_status: -1 }, machine_id);
+      await firebaseService.writeStartStopData(
+        { machine_status: -1, mode: -1 },
+        machine_id
+      );
+    }, 17000);
+
+    // Управление интервалами для периодической проверки состояния
+    if (!intervalIDs[machine_id]) {
+      intervalIDs[machine_id] = [];
     }
-  }, 10000);
+
+    intervalIDs[machine_id].push(
+      setInterval(processWashing, checkIntervalTimeMin * 60 * 1000, washing_id, transaction_id)
+    );
+  }
 
   return {
     txn_id: query.txn_id,
@@ -212,6 +314,7 @@ async function pay(query) {
 
 export const paymentProcess = async (req, res) => {
   let json;
+
   try {
     switch (req.query.command) {
       case "check":
@@ -221,10 +324,19 @@ export const paymentProcess = async (req, res) => {
         json = await pay(req.query);
         break;
       default:
-        json = { txn_id: req.query.txn_id, result: 1, comment: "Command not found" };
+        json = {
+          txn_id: req.query.txn_id,
+          result: 1,
+          comment: "Command not found",
+        };
     }
   } catch (err) {
-    json = { txn_id: req.query.txn_id, result: 1, comment: "Error during processing", desc: err.message };
+    json = {
+      txn_id: req.query.txn_id,
+      result: 1,
+      comment: "Error during processing",
+      desc: err.message,
+    };
   } finally {
     res.json(json);
   }
