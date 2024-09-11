@@ -1,3 +1,11 @@
+// Этот файл отвечает за запись и чтение данных в Firebase.
+// Основные функции:
+// writeData: записывает статус машины (включена/выключена) в Firebase.
+// writeStartStopData: управляет выбором режима и стартом машины, с задержками.
+// readData: читает текущее состояние машины.
+// onTimerChange: реагирует на изменение таймера машины.
+
+
 import { initializeApp } from "firebase/app";
 import {
   getDatabase,
