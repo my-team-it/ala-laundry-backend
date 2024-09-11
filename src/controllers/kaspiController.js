@@ -36,45 +36,34 @@ async function processWashing(washing_id) {
 }
 
 async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
-  try {
-    const json = await firebaseService.readData(machine_id);
-    if (!json || !json.output) {
-      console.log(`Machine data not found for machine ID: ${machine_id}`);
-      return;
-    }
-
-    const value = json.output.isDoorOpen;
+  const json = await firebaseService.readData(machine_id);
+  const key = `is_door_open_${i + 1}`; // Correctly form the key name
+  const value = json.output.isDoorOpen;
+  
+  // Ensure you're passing an object with dynamically set property names
+  let updateObj = {};
+  updateObj[[key]] = value; // Set the dynamic key-value pair
+  
+  await washingService.updateIsDoorOpenByID(washing_id, updateObj); // Pass the correct object
+  
+  if (i === numCheck - 1) {
+    const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
+    const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
     
-    // Сохраняем состояние двери в washing_service
-    let updateObj = {};
-    updateObj[`is_door_open_${i + 1}`] = value;
-    await washingService.updateIsDoorOpenByID(washing_id, updateObj);
-    
-    // Если это последняя проверка, анализируем результаты
-    if (i === numCheck - 1) {
-      const isDoorOpenList = await washingService.readIsDoorOpenStatesByID(washing_id);
-      const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => status === 0);
+    if (isDoorClosedOnAllChecks) {
+      stopInterval(parseInt(machine_id));
       
-      if (isDoorClosedOnAllChecks) {
-        stopInterval(parseInt(machine_id));
-        
-        await washingService.updateWashing(washing_id, {
-          state: "AVAILABLE",
-          end_timer_val: json.output.timer,
-          is_door_open: 0, // Окончательное состояние двери
-        });
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        end_timer_val: json.output.timer,
+        is_door_open: 0, // Assuming your schema has an `is_door_open` column for the final state
+      });
 
-        await firebaseService.writeData({ machine_status: 0 }, machine_id);
-        await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
-      } else {
-        console.log(`Door is not closed on all checks for washing ID: ${washing_id}`);
-      }
+      await firebaseService.writeData({ machine_status: 0 }, machine_id);
+      await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
     }
-  } catch (error) {
-    console.log(`Error during door status check: ${error.message}`);
   }
 }
-
 
 
 function generateId() {
