@@ -86,8 +86,14 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
     }
   } catch (error) {
     console.error(`Error during door status check ${i + 1} for washing ID ${washing_id} and machine ID ${machine_id}:`, error);
+    
+    // Повторная попытка через 5 секунд при ошибке
+    setTimeout(() => {
+      checkDoorStatus(i, washing_id, machine_id, numCheck);
+    }, 5000);
   }
 }
+
 
 
 
