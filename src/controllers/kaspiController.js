@@ -120,7 +120,6 @@ async function check(query) {
 
   // Получаем последнюю стирку по ID машины
   const washing = await washingService.readLastByMachineID(query.account);
-  console.log(`Last washing state for machine ${query.account}:`, washing);
 
   // Получаем текущее состояние машины из Firebase
   const firebaseState = await firebaseService.readData(query.account);
