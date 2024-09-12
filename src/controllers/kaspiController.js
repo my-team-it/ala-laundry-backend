@@ -19,7 +19,7 @@ function stopInterval(machineId) {
 
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
-  console.log(`Processing washing ${washing_id} for machine ${washing.machine_id}`);
+  // console.log(`Processing washing ${washing_id} for machine ${washing.machine_id}`);
   await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
   
   const numCheck = 3;
@@ -43,7 +43,7 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
   
   try {
     const json = await firebaseService.readData(machine_id);
-    console.log(`Firebase data for machine ${machine_id} received:`, json);
+    // console.log(`Firebase data for machine ${machine_id} received:`, json);
 
     const key = `is_door_open_${i + 1}`; 
     const value = json.output.isDoorOpen;
@@ -122,7 +122,7 @@ function generateId() {
 
 async function check(query) {
   console.log("Start processing 'check' command.");
-  console.log(`Received account ID: ${query.account}, transaction ID: ${query.txn_id}`);
+  // console.log(`Received account ID: ${query.account}, transaction ID: ${query.txn_id}`);
 
   // Получаем последнюю стирку по ID машины
   const washing = await washingService.readLastByMachineID(query.account);
