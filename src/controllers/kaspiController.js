@@ -306,10 +306,11 @@ async function handleTCLMachine(machine_id, mode_id, washing_id) {
   console.log("Machine started with mode:", mode_id);
 
   setTimeout(async () => {
-    await firebaseService.writeData({ machine_status: -1 }, machine_id);
-    await firebaseService.writeStartStopData({ machine_status: -1, mode: -1 }, machine_id);
-    console.log("Machine reset after 17 seconds.");
-  }, 17000);
+  await firebaseService.writeData({ machine_status: -1 }, machine_id);
+  await firebaseService.writeStartStopData({ machine_status: -1, mode: -1 }, machine_id);
+  console.log("Machine reset after 30 seconds."); // Увеличено с 17 до 30 секунд
+}, 30000);
+
 
   setTimeout(async () => {
     await washingService.updateWashing(washing_id, {
