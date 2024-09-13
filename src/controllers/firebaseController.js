@@ -137,29 +137,29 @@ export const machine = async (req, res) => {
   }
 };
 
-export const adminModeOn = async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  try {
-    console.log(`Turning admin mode ON for machine ${req.params.id}.`);
-    await firebaseService.writeAdminData({ admin: 1 }, req.params.id);
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
-  } catch (err) {
-    console.error(`Error turning admin mode ON for machine ${req.params.id}: ${err.message}`);
-    res.status(500).json({ error: err.message });
-  }
-};
+// export const adminModeOn = async (req, res) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   try {
+//     console.log(`Turning admin mode ON for machine ${req.params.id}.`);
+//     await firebaseService.writeAdminData({ admin: 1 }, req.params.id);
+//     const result = await firebaseService.readData(req.params.id);
+//     res.json({ data: result, status: "success" });
+//   } catch (err) {
+//     console.error(`Error turning admin mode ON for machine ${req.params.id}: ${err.message}`);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 
-export const adminModeOff = async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  try {
-    console.log(`Turning admin mode OFF for machine ${req.params.id}.`);
-    await firebaseService.writeAdminData({ admin: 0 }, req.params.id);
+// export const adminModeOff = async (req, res) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   try {
+//     console.log(`Turning admin mode OFF for machine ${req.params.id}.`);
+//     await firebaseService.writeAdminData({ admin: 0 }, req.params.id);
 
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
-  } catch (err) {
-    console.error(`Error turning admin mode OFF for machine ${req.params.id}: ${err.message}`);
-    res.status(500).json({ error: err.message });
-  }
-};
+//     const result = await firebaseService.readData(req.params.id);
+//     res.json({ data: result, status: "success" });
+//   } catch (err) {
+//     console.error(`Error turning admin mode OFF for machine ${req.params.id}: ${err.message}`);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
