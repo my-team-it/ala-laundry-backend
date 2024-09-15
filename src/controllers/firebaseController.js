@@ -22,25 +22,14 @@ export const machineOnWithMode = async (req, res) => {
       req.params.id
     );
     // Добавляем задержку для выбора режима после включения машины
-    setTimeout(async () => {
-      // Проверяем состояние машины перед выбором режима
-      const machineState = await firebaseService.readData(req.params.id);
+    // Проверяем состояние машины после установки
+    const machineState = await firebaseService.readData(req.params.id);
 
-      // Если машина включена, выбираем режим
       if (machineState.machine_status === 1) {
-        await firebaseService.writeData(
-          { mode: parseInt(req.params.mode) },  // Устанавливаем режим после включения
-          req.params.id
-        );
-
-        // Читаем данные машины для подтверждения
-        const result = await firebaseService.readData(req.params.id);
-        res.json({ data: result, status: "success" });
-      } else {
-        // Если машина не включена, возвращаем ошибку
-        res.status(500).json({ error: "Machine did not start properly." });
-      }
-    }, 1000);  // Задержка в 1 секунду для надежного включения машины
+      res.json({ data: machineState, status: "success" });
+    } else {
+      res.status(500).json({ error: "Machine did not start properly." });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
