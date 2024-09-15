@@ -70,10 +70,15 @@ export const createMachine = async (req, res) => {
 
 export const readMachine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
-  const { id } = req.params;
-  const result = await machineService.readMachine(id);
-  res.json({ data: result });
+  try {
+    const { id } = req.params;
+    const result = await machineService.readMachine(id);
+    res.json({ data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 
 export const updateMachine = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");

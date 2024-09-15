@@ -1,3 +1,5 @@
+import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async/fixed';
+
 import modeService from "../services/modeService.js";
 import washingService from "../services/washingService.js";
 import paymentService from "../services/paymentService.js";
@@ -7,15 +9,28 @@ import firebaseService from "../services/firebaseService.js";
 import { BIN } from "../config.js";
 
 const intervalIDs = [];
-
+const intervalMap = new Map();
 const checkIntervalTimeMin = 1
 
-function stopInterval(machineId) {
-  while (intervalIDs[machineId].length) {
-    clearInterval(intervalIDs[machineId].pop());
+
+async function startInterval(machineId, washingId) {
+  if (intervalMap.has(machineId)) {
+    await clearIntervalAsync(intervalMap.get(machineId));
   }
+
+  const interval = setIntervalAsync(async () => {
+    await processWashing(washingId);
+  }, checkIntervalTimeMin * 60 * 1000);
+
+  intervalMap.set(machineId, interval);
 }
 
+async function stopInterval(machineId) {
+  if (intervalMap.has(machineId)) {
+    await clearIntervalAsync(intervalMap.get(machineId));
+    intervalMap.delete(machineId);
+  }
+}
 async function processWashing(washing_id) {
   const [washing] = await washingService.readWashing(washing_id);
   await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
