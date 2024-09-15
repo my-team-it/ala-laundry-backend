@@ -108,26 +108,3 @@ export const machine = async (req, res) => {
     res.status(500).json({ error: _err.message });
   }
 };
-
-export const adminModeOn = async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  try {
-    await firebaseService.writeAdminData({ admin: 1 }, req.params.id);
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const adminModeOff = async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  try {
-    await firebaseService.writeAdminData({ admin: 0 }, req.params.id);
-
-    const result = await firebaseService.readData(req.params.id);
-    res.json({ data: result, status: "success" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
