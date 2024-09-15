@@ -6,7 +6,7 @@ import firebaseService from "../services/firebaseService.js";
 
 import { BIN } from "../config.js";
 
-const intervalIDs = [];
+const intervalIDs = new Map();
 
 const checkIntervalTimeMin = 1
 
@@ -97,20 +97,19 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
 
 
 
-function generateId() {
+async function generateId() {
   let prvTxnId;
   let isUnique = false;
-  let attemptCount = 0; // счетчик попыток
-
-  console.log("Starting transaction ID generation.");
+  let attemptCount = 0;
 
   do {
     prvTxnId = Math.floor(Math.random() * Math.pow(10, 19));
     attemptCount++;
     console.log(`Generated transaction ID: ${prvTxnId}, attempt: ${attemptCount}`);
 
-    // Проверяем, существует ли такой ID в базе данных
-    isUnique = paymentService.readPrvTxnId(prvTxnId);
+    // Await the Promise to get the actual result
+    const result = await paymentService.readPrvTxnId(prvTxnId);
+    isUnique = !result; // Assuming that result is null or undefined if ID doesn't exist
     console.log(`Is transaction ID ${prvTxnId} unique? ${isUnique ? "Yes" : "No"}`);
 
   } while (!isUnique);
@@ -118,6 +117,7 @@ function generateId() {
   console.log(`Unique transaction ID ${prvTxnId} generated after ${attemptCount} attempts.`);
   return prvTxnId;
 }
+
 
 
 async function check(query) {
