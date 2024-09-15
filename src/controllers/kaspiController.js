@@ -273,10 +273,11 @@ async function startMachine(machine_id, mode_id, washing_id) {
           const updatedState = await firebaseService.readData(machine_id);
 
           if (updatedState.output.isDoorOpen === 1) {
-            logger.info(`Door is closed. Stopping machine ${machine_id}.`);
+            logger.info(`Door is closed. Continuing operation for machine ${machine_id}.`);
             await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
+            await resetMachine(machine_id);
           } else {
-            logger.warn(`Door is open. Resetting machine ${machine_id}.`);
+            logger.warn(`Door is open. Proceeding with reset after all operations.`);
             await resetMachine(machine_id);
           }
         }, 15000);
@@ -310,15 +311,27 @@ async function startMachine(machine_id, mode_id, washing_id) {
     }, checkIntervalTimeMin * 60 * 1000);
 
     intervalMap.set(machine_id, intervalId);
+
+    // Добавляем задержку перед сбросом (2-3 секунды)
+    setTimeout(async () => {
+      await resetMachine(machine_id);
+    }, 3000);  // Задержка в 3 секунды
   }
 }
 
-// Функция сброса состояния машины
+
+
 async function resetMachine(machine_id) {
-  logger.warn(`Resetting machine ${machine_id}.`);
-  await firebaseService.writeData({ machine_status: -1 }, machine_id);
-  await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+  logger.warn(`Resetting machine ${machine_id} after all operations with delay.`);
+  
+  // Задержка перед сбросом (2-3 секунды)
+  setTimeout(async () => {
+      await firebaseService.writeData({ machine_status: -1 }, machine_id);
+      await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
+      logger.info(`Machine ${machine_id} has been reset.`);
+  }, 2000);  // Задержка 2 секунды
 }
+
 
 
 // Экспорт контроллеров для работы с платежами
