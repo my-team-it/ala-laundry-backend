@@ -26,12 +26,14 @@ async function stopInterval(machineId) {
   if (intervalMap.has(machineId)) {
     await clearIntervalAsync(intervalMap.get(machineId));
     intervalMap.delete(machineId);
+    logger.info(`Interval for machine ${machineId} stopped.`);
   }
 }
 
 
 // Основная функция для проверки состояния дверцы машины
 async function processWashing(washing_id) {
+  logger.info(`Processing washing with ID: ${washing_id}`);
   const [washing] = await washingService.readWashing(washing_id);
   await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
   const numCheck = 3
@@ -51,6 +53,7 @@ async function processWashing(washing_id) {
 }
 
 async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
+  logger.info(`Checking door status for washing ${washing_id}, machine ${machine_id}, check #${i + 1}`);
   const json = await firebaseService.readData(machine_id);
   const key = `is_door_open_${i + 1}`; // Correctly form the key name
   const value = json.output.isDoorOpen;
@@ -67,6 +70,7 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
     const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
 
     if (isDoorClosedOnAllChecks) {
+      logger.info(`Door is closed for washing ${washing_id}. Stopping interval for machine ${machine_id}.`);
       stopInterval(parseInt(machine_id));
 
       await washingService.updateWashing(washing_id, {
@@ -78,17 +82,22 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
       await firebaseService.writeData({ machine_status: 0 }, machine_id);
       await firebaseService.writeCheckData({ isChecking: 0 }, machine_id);
     }
+    else {
+    logger.warn(`Door is not closed for washing ${washing_id}, machine ${machine_id}.`);
+    }
   }
 }
 
 
 // Функция для проверки состояния машины перед оплатой
 async function check(query) {
+  logger.info(`Checking machine status for account ${query.account} before payment.`);
   const washing = await washingService.readLastByMachineID(query.account);
   const firebaseState = await firebaseService.readData(query.account);
 
   const now = new Date().getTime();
   if (now / 1000 - firebaseState.output.timer > 10) {
+    logger.warn(`Machine ${query.account} is not ready.`);
     console.log("machine not ready1");
     return {
       txn_id: query.txn_id,
@@ -106,9 +115,11 @@ async function check(query) {
 
   if (query.account >= 1000) {
     console.log("machine ready SAMSUNG");
+    logger.info(`Machine ${query.account} is ready (SAMSUNG).`);
     priceList = [priceList[6]];
     // console.log(priceList);
     if (firebaseState.output.isDoorOpen == 1) {
+      logger.warn(`Machine ${query.account} is busy (door is open).`);
       console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
@@ -119,8 +130,10 @@ async function check(query) {
     }
   } else {
     priceList = priceList.slice(0,6)
+    logger.info(`Machine ${query.account} is ready (TCL).`);
     console.log("machine ready TCL");
     if (washing.length > 1) {
+      logger.warn(`Machine ${query.account} is busy (door is open).`);
       if (washing[washing.length - 1].is_door_open == 1) {
         console.log("machine not ready2");
         return {
@@ -143,6 +156,7 @@ async function check(query) {
     comment: "Item found",
   };
   console.log("Item found");
+  logger.info(`Machine ${query.account} passed all checks.`);
   return response;
 }
 
@@ -192,6 +206,7 @@ async function pay(query) {
     const washing_id = newWashing.insertId; // Используем insertId
 
     if (!washing_id) {
+      logger.error(`Failed to create washing record for transaction ${query.txn_id}`);
       throw new Error("Не удалось создать запись стирки (washing_id не найден)");
     }
 
@@ -207,6 +222,7 @@ async function pay(query) {
     const payment_id = newPayment.insertId; // Используем insertId
 
     if (!payment_id) {
+      logger.error(`Failed to create payment record for transaction ${query.txn_id}`);
       throw new Error("Не удалось создать запись платежа (payment_id не найден)");
     }
 
@@ -218,8 +234,8 @@ async function pay(query) {
 
     // Создаем транзакцию
     await transactionService.createTransaction(transaction);
-
     await connection.commit();
+
 
     logger.info(`Payment for transaction ${query.txn_id} was successful`);
 
@@ -244,6 +260,7 @@ async function pay(query) {
 
 // Функция для запуска машины после успешного платежа
 async function startMachine(machine_id, mode_id, washing_id) {
+  logger.info(`Starting machine ${machine_id} for washing ${washing_id}.`);
   if (machine_id >= 1000) {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
 
@@ -256,8 +273,10 @@ async function startMachine(machine_id, mode_id, washing_id) {
           const updatedState = await firebaseService.readData(machine_id);
 
           if (updatedState.output.isDoorOpen === 0) {
+            logger.info(`Door is closed. Stopping machine ${machine_id}.`);
             await firebaseService.writeStartStopData({ machine_status: 0 }, machine_id);
           } else {
+            logger.warn(`Door is open. Resetting machine ${machine_id}.`);
             await resetMachine(machine_id);
           }
         }, 15000);
@@ -265,8 +284,10 @@ async function startMachine(machine_id, mode_id, washing_id) {
         setTimeout(async () => {
           const updatedState = await firebaseService.readData(machine_id);
           if (updatedState.output.isDoorOpen === 0) {
+            logger.info(`Final check passed. Machine ${machine_id} operating normally.`);
             await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
           } else {
+            logger.warn(`Final check failed. Resetting machine ${machine_id}.`);
             await resetMachine(machine_id);
           }
         }, 30000);
@@ -274,6 +295,7 @@ async function startMachine(machine_id, mode_id, washing_id) {
         setTimeout(async () => {
           const finalState = await firebaseService.readData(machine_id);
           if (finalState.output.isDoorOpen !== 0) {
+            logger.error(`Final state check failed. Machine ${machine_id} reset.`);
             await resetMachine(machine_id);
           }
         }, 45000);
@@ -293,6 +315,7 @@ async function startMachine(machine_id, mode_id, washing_id) {
 
 // Функция сброса состояния машины
 async function resetMachine(machine_id) {
+  logger.warn(`Resetting machine ${machine_id}.`);
   await firebaseService.writeData({ machine_status: -1 }, machine_id);
   await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
 }
@@ -323,6 +346,7 @@ export const paymentProcess = async (req, res) => {
       comment: "Error during processing",
       desc: err.message,
     };
+    logger.error(`Error processing payment request: ${err.message}`, err);
   } finally {
     res.json(json);
   }
@@ -336,6 +360,7 @@ export const getPrice = async (req, res) => {
     json = { sum: result[0].price, bin: BIN };
   } catch (err) {
     json = { result: 1, comment: "Service not found" };
+    logger.error(`Failed to retrieve price for service ${req.query.service_id}: ${err.message}`, err);
   } finally {
     res.json(json);
   }
