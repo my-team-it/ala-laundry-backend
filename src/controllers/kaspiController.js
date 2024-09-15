@@ -70,7 +70,7 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
     const isDoorClosedOnAllChecks = Object.values(isDoorOpenList).every(status => !status);
 
     if (isDoorClosedOnAllChecks) {
-      logger.info(`Door is closed for washing ${washing_id}. Stopping interval for machine ${machine_id}.`);
+      logger.info(`Door is closed for washing ${machine_id}. Stopping interval for machine ${machine_id}.`);
       stopInterval(parseInt(machine_id));
 
       await washingService.updateWashing(washing_id, {
@@ -119,7 +119,7 @@ async function check(query) {
     priceList = [priceList[6]];
     // console.log(priceList);
     if (firebaseState.output.isDoorOpen == 1) {
-      logger.warn(`Machine ${query.account} is busy (door is open).`);
+      logger.warn(`Machine ${query.account} is busy (door is closed).`);
       console.log("machine not ready5");
       return {
         txn_id: query.txn_id,
@@ -272,9 +272,9 @@ async function startMachine(machine_id, mode_id, washing_id) {
         setTimeout(async () => {
           const updatedState = await firebaseService.readData(machine_id);
 
-          if (updatedState.output.isDoorOpen === 0) {
+          if (updatedState.output.isDoorOpen === 1) {
             logger.info(`Door is closed. Stopping machine ${machine_id}.`);
-            await firebaseService.writeStartStopData({ machine_status: 0 }, machine_id);
+            await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
           } else {
             logger.warn(`Door is open. Resetting machine ${machine_id}.`);
             await resetMachine(machine_id);
@@ -283,7 +283,7 @@ async function startMachine(machine_id, mode_id, washing_id) {
 
         setTimeout(async () => {
           const updatedState = await firebaseService.readData(machine_id);
-          if (updatedState.output.isDoorOpen === 0) {
+          if (updatedState.output.isDoorOpen === 1) {
             logger.info(`Final check passed. Machine ${machine_id} operating normally.`);
             await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
           } else {
@@ -294,7 +294,7 @@ async function startMachine(machine_id, mode_id, washing_id) {
 
         setTimeout(async () => {
           const finalState = await firebaseService.readData(machine_id);
-          if (finalState.output.isDoorOpen !== 0) {
+          if (finalState.output.isDoorOpen !== 1) {
             logger.error(`Final state check failed. Machine ${machine_id} reset.`);
             await resetMachine(machine_id);
           }
