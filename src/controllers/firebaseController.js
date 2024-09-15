@@ -1,5 +1,10 @@
 import firebaseService from "../services/firebaseService.js";
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 export const machineOn = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   try {
@@ -72,34 +77,50 @@ export const machineOff = async (req, res) => {
 
 export const machineStart = async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
+// Parse and validate the machine ID and mode from the request parameters
+  const machineId = parseInt(req.params.id, 10);
+  const mode = parseInt(req.params.mode, 10);
+
+  if (isNaN(machineId) || isNaN(mode)) {
+    console.error(`Invalid machine ID or mode: ${req.params.id}, ${req.params.mode}`);
+    return res.status(400).json({ error: "Invalid machine ID or mode" });
+  }
+
   try {
     console.log(`Starting machine ${req.params.id}.`);
+    // Write the initial machine status to Firebase
     await firebaseService.writeStartStopData(
       { machine_status: 1 },
-      req.params.id
+      machineId
     );
 
-    setTimeout(async () => {
-      console.log(`Checking machine ${req.params.id} status after start.`);
-      const machineState = await firebaseService.readData(req.params.id);
+    // Wait for 1 second before checking the machine status
+    await delay(1000);
 
-      if (machineState.machine_status === 1) {
-        console.log(`Machine ${req.params.id} is ON. Setting mode to ${req.params.mode}.`);
-        await firebaseService.writeStartStopData(
-          { mode: parseInt(req.params.mode) },  
-          req.params.id
-        );
+    console.log(`Checking machine ${machineId} status after start.`);
+    const machineState = await firebaseService.readData(machineId);
 
-        const result = await firebaseService.readData(req.params.id);
-        console.log(`Mode set successfully for machine ${req.params.id}.`);
-        res.json({ data: result, status: "success" });
-      } else {
-        console.error(`Machine ${req.params.id} did not start properly.`);
-        res.status(500).json({ error: "Machine did not start properly." });
-      }
-    }, 1000);
+    if (machineState.machine_status === 1) {
+      console.log(`Machine ${machineId} is ON. Setting mode to ${mode}.`);
+
+      // Set the machine mode
+      await firebaseService.writeStartStopData(
+        { mode: mode },
+        machineId
+      );
+
+      // Read the updated machine data
+      const result = await firebaseService.readData(machineId);
+      console.log(`Mode set successfully for machine ${machineId}.`);
+
+      // Send the success response to the client
+      res.json({ data: result, status: "success" });
+    } else {
+      console.error(`Machine ${machineId} did not start properly.`);
+      res.status(500).json({ error: "Machine did not start properly." });
+    }
   } catch (err) {
-    console.error(`Error starting machine ${req.params.id}: ${err.message}`);
+    console.error(`Error starting machine ${machineId}: ${err.message}`);
     res.status(500).json({ error: err.message });
   }
 };
