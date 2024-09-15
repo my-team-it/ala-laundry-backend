@@ -41,7 +41,8 @@ const readLastWashingState = async (washing_id) => {
 };
 
 const createWashing = async (newwashing) => {
-  return await pool.query("INSERT INTO washing set ?", [newwashing]);
+  const [result] = await pool.query("INSERT INTO washing SET ?", [newwashing]);
+  return result; // Должно возвращаться поле result.insertId
 };
 
 const readWashing = async (id) => {

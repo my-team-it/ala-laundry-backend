@@ -8,7 +8,8 @@ const readPayments = async () => {
 };
 
 const createPayment = async (newpayment) => {
-  return await pool.query("INSERT INTO payment set ?", [newpayment]);
+  const [result] = await pool.query("INSERT INTO payment SET ?", [newpayment]);
+  return result; // Должно возвращаться поле result.insertId
 };
 
 const readPayment = async (id) => {

@@ -1,6 +1,6 @@
 import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async/fixed';
 import crypto from 'crypto'; // Для генерации уникального идентификатора
-
+import logger from '../logger.js'; // Импорт логгера
 import { pool } from '../db.js'; // Импорт пула соединений из вашего модуля базы данных
 
 import modeService from "../services/modeService.js";
@@ -133,8 +133,6 @@ async function check(query) {
     }
   }
 
-
-
   const response = {
     txn_id: query.txn_id,
     result: 0,
@@ -153,11 +151,12 @@ async function pay(query) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-
+    logger.info(`Starting payment process for transaction ID: ${query.txn_id}`); // Логируем начало процесса
     const machine_id = parseInt(query.account);
     const lastState = await washingService.readLastWashingStateByMachineID(machine_id);
 
     if (lastState[0] === machine_id) {
+      logger.warn(`Machine ${machine_id} is busy for transaction ${query.txn_id}`);
       return {
         txn_id: query.txn_id,
         result: 6,
@@ -188,18 +187,29 @@ async function pay(query) {
       machine_id,
     };
 
+    // Получаем washing_id
     const newWashing = await washingService.createWashing(washing);
-    const washing_id = newWashing.insertId;
+    const washing_id = newWashing.insertId; // Используем insertId
+
+    if (!washing_id) {
+      throw new Error("Не удалось создать запись стирки (washing_id не найден)");
+    }
 
     const payment = {
       txn_id: query.txn_id,
       prv_txn_id: prvTxnId,
       sum: mode_price,
       status: "PAID",
+      payment_date: now,
     };
 
+    // Получаем payment_id
     const newPayment = await paymentService.createPayment(payment);
-    const payment_id = newPayment.insertId;
+    const payment_id = newPayment.insertId; // Используем insertId
+
+    if (!payment_id) {
+      throw new Error("Не удалось создать запись платежа (payment_id не найден)");
+    }
 
     const transaction = {
       transaction_date: now,
@@ -207,9 +217,12 @@ async function pay(query) {
       payment_id,
     };
 
+    // Создаем транзакцию
     await transactionService.createTransaction(transaction);
 
     await connection.commit();
+
+    logger.info(`Payment for transaction ${query.txn_id} was successful`);
 
     await startMachine(machine_id, mode_id, washing_id);
     return {
@@ -222,12 +235,13 @@ async function pay(query) {
     };
   } catch (err) {
     await connection.rollback();
-    console.error("Ошибка при обработке платежа:", err);
+    logger.error(`Payment for transaction ${query.txn_id} failed: ${err.message}`, err);
     throw err;
   } finally {
     connection.release();
   }
 }
+
 
 // Функция для запуска машины после успешного платежа
 async function startMachine(machine_id, mode_id, washing_id) {
