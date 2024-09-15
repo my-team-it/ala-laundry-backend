@@ -3,42 +3,51 @@ import washingService from "../services/washingService.js";
 import paymentService from "../services/paymentService.js";
 import transactionService from "../services/transactionService.js";
 import firebaseService from "../services/firebaseService.js";
+import { Mutex } from 'async-mutex';
 
 import { BIN } from "../config.js";
 
 const intervalIDs = new Map();
+const machineLocks = {};
 
 const checkIntervalTimeMin = 1
 
 function stopInterval(machineId) {
   console.log(`Stopping intervals for machine ${machineId}`);
-  while (intervalIDs[machineId].length) {
-    clearInterval(intervalIDs[machineId].pop());
-  }
-}
-
-async function processWashing(washing_id) {
-  const [washing] = await washingService.readWashing(washing_id);
-  // console.log(`Processing washing ${washing_id} for machine ${washing.machine_id}`);
-  await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
-  
-  const numCheck = 3;
-  if (washing.state === "ACTIVE") {
-    for (let i = 0; i < numCheck; i++) {
-      console.log(`Scheduling door check ${i + 1} for washing ${washing_id}`);
-      setTimeout(
-        checkDoorStatus,
-        (i + 1) * 15 * 1000,
-        i,
-        washing_id,
-        washing.machine_id,
-        numCheck
-      );
+  const intervals = intervalIDs.get(machineId);
+  if (intervals && intervals.length) {
+    while (intervals.length) {
+      clearInterval(intervals.pop());
     }
   }
 }
 
-async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
+
+async function processWashing(washing_id) {
+  const [washing] = await washingService.readWashing(washing_id);
+  await firebaseService.writeCheckData({ isChecking: 1 }, washing.machine_id);
+  
+  const numCheck = 3;
+  if (washing.state === "ACTIVE") {
+    // Initialize the intervals array for the machine if it doesn't exist
+    if (!intervalIDs.has(washing.machine_id)) {
+      intervalIDs.set(washing.machine_id, []);
+    }
+    const intervals = intervalIDs.get(washing.machine_id);
+
+    for (let i = 0; i < numCheck; i++) {
+      console.log(`Scheduling door check ${i + 1} for washing ${washing_id}`);
+      const timeoutId = setTimeout(
+        () => checkDoorStatus(i, washing_id, washing.machine_id, numCheck),
+        (i + 1) * 15 * 1000
+      );
+      intervals.push(timeoutId);
+    }
+  }
+}
+
+
+async function checkDoorStatus(i, washing_id, machine_id, numCheck, retryCount = 0, maxRetries = 5) {
   console.log(`Starting door status check ${i + 1} for washing ID ${washing_id} and machine ID ${machine_id}`);
   
   try {
@@ -87,10 +96,15 @@ async function checkDoorStatus(i, washing_id, machine_id, numCheck) {
   } catch (error) {
     console.error(`Error during door status check ${i + 1} for washing ID ${washing_id} and machine ID ${machine_id}:`, error);
     
-    // Повторная попытка через 5 секунд при ошибке
-    setTimeout(() => {
-      checkDoorStatus(i, washing_id, machine_id, numCheck);
-    }, 5000);
+    if (retryCount < maxRetries) {
+      console.log(`Retrying door status check ${i + 1} (Retry ${retryCount + 1} of ${maxRetries}) in 5 seconds.`);
+      setTimeout(() => {
+        checkDoorStatus(i, washing_id, machine_id, numCheck, retryCount + 1, maxRetries);
+      }, 5000);
+    } else {
+      console.error(`Max retries reached for door status check ${i + 1} for washing ID ${washing_id} and machine ID ${machine_id}.`);
+      // Handle the failure appropriately (e.g., log, alert, update status)
+    }
   }
 }
 
@@ -102,21 +116,23 @@ async function generateId() {
   let isUnique = false;
   let attemptCount = 0;
 
+  console.log("Starting transaction ID generation.");
+
   do {
     prvTxnId = Math.floor(Math.random() * Math.pow(10, 19));
     attemptCount++;
     console.log(`Generated transaction ID: ${prvTxnId}, attempt: ${attemptCount}`);
 
-    // Await the Promise to get the actual result
-    const result = await paymentService.readPrvTxnId(prvTxnId);
-    isUnique = !result; // Assuming that result is null or undefined if ID doesn't exist
+    // Check if the ID already exists in the database
+    const existingId = await paymentService.readPrvTxnId(prvTxnId);
+    isUnique = !existingId || existingId.length === 0;
     console.log(`Is transaction ID ${prvTxnId} unique? ${isUnique ? "Yes" : "No"}`);
-
   } while (!isUnique);
 
   console.log(`Unique transaction ID ${prvTxnId} generated after ${attemptCount} attempts.`);
   return prvTxnId;
 }
+
 
 
 
@@ -201,88 +217,133 @@ async function check(query) {
 
 
 async function pay(query) {
-  console.log("Processing payment for account:", query.account);
-
   const machine_id = parseInt(query.account);
-  const lastState = await washingService.readLastWashingStateByMachineID(machine_id);
 
-  // Проверяем, не занята ли машина
-  if (lastState[0] === machine_id) {
-    console.log("Machine is busy, payment aborted.");
+  // Create a mutex for the machine if it doesn't exist
+  if (!machineLocks[machine_id]) {
+    machineLocks[machine_id] = new Mutex();
+  }
+
+  // Acquire the mutex
+  const release = await machineLocks[machine_id].acquire();
+
+  try {
+    console.log("Processing payment for account:", query.account);
+
+    // Check if the machine is busy
+    const lastState = await washingService.readLastWashingStateByMachineID(machine_id);
+
+    // Adjust the condition to check the actual state
+    if (lastState && lastState.length > 0 && lastState[0].state === "ACTIVE") {
+      console.log("Machine is busy, payment aborted.");
+      return {
+        txn_id: query.txn_id,
+        result: 6,
+        bin: BIN,
+        comment: "The machine is busy",
+      };
+    }
+
+    // Generate a unique transaction ID
+    const prvTxnId = await generateId(); // Ensure generateId is an async function
+
+    const mode_id = parseInt(query.service_id);
+    const mode_price_result = await modeService.readPrice(mode_id);
+
+    // Check if the mode exists and get the price
+    if (!mode_price_result || mode_price_result.length === 0) {
+      console.log("Invalid service ID, payment aborted.");
+      return {
+        txn_id: query.txn_id,
+        result: 5,
+        bin: BIN,
+        comment: "Invalid service ID",
+      };
+    }
+
+    const mode_price = mode_price_result[0].price;
+
+    // Check if the sum is correct
+    if (parseInt(query.sum) !== mode_price) {
+      console.log("Incorrect price, payment aborted.");
+      return {
+        txn_id: query.txn_id,
+        result: 5,
+        bin: BIN,
+        comment: "Incorrect price",
+      };
+    }
+
+    const now = new Date();
+    const washing = {
+      start_time: now,
+      is_door_open: 1,
+      state: "ACTIVE",
+      mode_id,
+      machine_id,
+    };
+
+    // Create washing record
+    const newWashing = await washingService.createWashing(washing);
+    const washing_id = newWashing.insertId || newWashing[0].insertId;
+
+    // Create payment record
+    const payment = {
+      txn_id: query.txn_id,
+      prv_txn_id: prvTxnId,
+      sum: mode_price,
+      status: "PAID",
+    };
+    const newPayment = await paymentService.createPayment(payment);
+    const payment_id = newPayment.insertId || newPayment[0].insertId;
+
+    // Create transaction record
+    const transaction = {
+      transaction_date: now,
+      washing_id,
+      payment_id,
+    };
+    await transactionService.createTransaction(transaction);
+
+    // Process the machine based on type
+    if (machine_id >= 1000) {
+      console.log("Processing SAMSUNG machine...");
+      await handleSamsungMachine(machine_id);
+    } else {
+      console.log("Processing TCL machine...");
+      await handleTCLMachine(machine_id, mode_id, washing_id);
+    }
+
+    // Return success
+    console.log("Payment processed successfully.");
     return {
       txn_id: query.txn_id,
-      result: 6,
+      prv_txn_id: prvTxnId,
+      result: 0,
+      sum: parseInt(query.sum),
       bin: BIN,
-      comment: "The machine is busy",
+      comment: "Pay item found",
     };
-  }
-
-  const prvTxnId = generateId();
-  const mode_id = parseInt(query.service_id);
-  const mode_price = (await modeService.readPrice(mode_id))[0].price;
-
-  // Проверяем корректность суммы
-  if (parseInt(query.sum) !== mode_price) {
-    console.log("Incorrect price, payment aborted.");
+  } catch (error) {
+    console.error(`Error processing payment for account ${query.account}:`, error);
+    // Return an error response
     return {
       txn_id: query.txn_id,
-      result: 5,
+      result: 1,
       bin: BIN,
-      comment: "Incorrect price",
+      comment: "Error during processing",
+      desc: error.message,
     };
+  } finally {
+    // Always release the mutex
+    release();
   }
-
-  const now = new Date();
-  const washing = {
-    start_time: now,
-    is_door_open: 1,
-    state: "ACTIVE",
-    mode_id,
-    machine_id,
-  };
-
-  // Создаем запись стирки
-  const newWashing = await washingService.createWashing(washing);
-  const washing_id = newWashing[0].insertId;
-
-  // Создаем запись платежа
-  const payment = {
-    txn_id: query.txn_id,
-    prv_txn_id: prvTxnId,
-    sum: mode_price,
-    status: "PAID",
-  };
-  const newPayment = await paymentService.createPayment(payment);
-  const payment_id = newPayment[0].insertId;
-
-  // Создаем запись транзакции
-  const transaction = {
-    transaction_date: now,
-    washing_id,
-    payment_id,
-  };
-  await transactionService.createTransaction(transaction);
-
-  // Обработка в зависимости от типа машины
-  if (machine_id >= 1000) {
-    console.log("Processing SAMSUNG machine...");
-    await handleSamsungMachine(machine_id);
-  } else {
-    console.log("Processing TCL machine...");
-    await handleTCLMachine(machine_id, mode_id, washing_id);
-  }
-
-  // Возвращаем успешный результат
-  console.log("Payment processed successfully.");
-  return {
-    txn_id: query.txn_id,
-    prv_txn_id: prvTxnId,
-    result: 0,
-    sum: parseInt(query.sum),
-    bin: BIN,
-    comment: "Pay item found",
-  };
 }
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 // Обработка SAMSUNG машин
 async function handleSamsungMachine(machine_id) {
@@ -305,45 +366,55 @@ async function handleTCLMachine(machine_id, mode_id, washing_id) {
 
   console.log("Machine started with mode:", mode_id);
 
-  setTimeout(async () => {
+  await delay(30000);
+
   await firebaseService.writeData({ machine_status: -1 }, machine_id);
   await firebaseService.writeStartStopData({ machine_status: -1, mode: -1 }, machine_id);
-  console.log("Machine reset after 30 seconds."); // Увеличено с 17 до 30 секунд
-}, 30000);
+  console.log("Machine reset after 30 seconds."); // Increased from 17 to 30 seconds
 
-
+  // Place setTimeout inside the function
   setTimeout(async () => {
-    await washingService.updateWashing(washing_id, {
-      state: "AVAILABLE",
-      is_door_open: 0,
-    });
-    console.log("Washing state updated to AVAILABLE after 15 minutes.");
+    try {
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        is_door_open: 0,
+      });
+      console.log("Washing state updated to AVAILABLE after 15 minutes.");
+    } catch (error) {
+      console.error(`Error updating washing state for washing ID ${washing_id}:`, error);
+    }
   }, 15 * 60 * 1000);
 }
 
+
 // Функция для проверки состояния машины с повторами
 async function updateMachineStatusWithRetries(machine_id) {
-  for (let delay of [15000, 30000, 45000]) {
-    setTimeout(async () => {
+  const delays = [15000, 30000, 45000];
+
+  for (let delayTime of delays) {
+    await delay(delayTime);
+    try {
       const updatedState = await firebaseService.readData(machine_id);
       if (updatedState.output.isDoorOpen == 0) {
-        console.log(`Machine door closed, setting status to 1 after ${delay / 1000} seconds.`);
+        console.log(`Machine door closed, setting status to 1 after ${delayTime / 1000} seconds.`);
         await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
       } else {
-        console.log(`Machine door open, resetting machine after ${delay / 1000} seconds.`);
+        console.log(`Machine door open, resetting machine after ${delayTime / 1000} seconds.`);
         await firebaseService.writeData({ machine_status: -1 }, machine_id);
         await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
       }
-    }, delay);
+    } catch (error) {
+      console.error(`Error during machine status update after ${delayTime / 1000} seconds:`, error);
+    }
   }
 }
+
 
 
 export const paymentProcess = async (req, res) => {
   let json;
 
   try {
-    // Логирование начала процесса
     console.log(`Processing payment command: ${req.query.command} for txn_id: ${req.query.txn_id}`);
 
     switch (req.query.command) {
@@ -368,7 +439,6 @@ export const paymentProcess = async (req, res) => {
         };
     }
   } catch (err) {
-    // Логирование ошибки с дополнительной информацией
     console.error(`Error during payment processing for txn_id: ${req.query.txn_id}`, err);
 
     json = {
@@ -378,11 +448,11 @@ export const paymentProcess = async (req, res) => {
       desc: err.message,
     };
   } finally {
-    // Логирование завершения обработки и отправки ответа
     console.log(`Response sent for txn_id: ${req.query.txn_id}`, json);
     res.json(json);
   }
 };
+
 
 
 export const getPrice = async (req, res) => {
