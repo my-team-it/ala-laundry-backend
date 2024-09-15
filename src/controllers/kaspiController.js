@@ -200,7 +200,6 @@ async function pay(query) {
       prv_txn_id: prvTxnId,
       sum: mode_price,
       status: "PAID",
-      payment_date: now,
     };
 
     // Получаем payment_id
