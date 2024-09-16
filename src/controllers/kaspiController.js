@@ -326,9 +326,10 @@ async function resetMachine(machine_id) {
   
   // Задержка перед сбросом (2-3 секунды)
   setTimeout(async () => {
+      // Сбрасываем статус машины и режим
       await firebaseService.writeData({ machine_status: -1 }, machine_id);
-      await firebaseService.writeStartStopData({ machine_status: -1 }, machine_id);
-      logger.info(`Machine ${machine_id} has been reset.`);
+      await firebaseService.writeStartStopData({ machine_status: -1, mode: -1 }, machine_id);  // Сбрасываем и статус, и режим
+      logger.info(`Machine ${machine_id} has been reset with mode reset.`);
   }, 2000);  // Задержка 2 секунды
 }
 
