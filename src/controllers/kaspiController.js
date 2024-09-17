@@ -269,6 +269,7 @@ async function startMachine(machine_id, mode_id, washing_id) {
       if (machineState.machine_status === 1) {
         await firebaseService.writeStartStopData({ machine_status: 1 }, machine_id);
 
+        // Проверка состояния машины через 1 минуту
         setTimeout(async () => {
           const updatedState = await firebaseService.readData(machine_id);
 
@@ -280,8 +281,9 @@ async function startMachine(machine_id, mode_id, washing_id) {
             logger.warn(`Door is open. Proceeding with reset after all operations.`);
             await resetMachine(machine_id);
           }
-        }, 15000);
+        }, 60 * 1000); // Задержка в 1 минуту
 
+        // Вторая проверка состояния машины через 2 минуты
         setTimeout(async () => {
           const updatedState = await firebaseService.readData(machine_id);
           if (updatedState.output.isDoorOpen === 1) {
@@ -291,17 +293,18 @@ async function startMachine(machine_id, mode_id, washing_id) {
             logger.warn(`Final check failed. Resetting machine ${machine_id}.`);
             await resetMachine(machine_id);
           }
-        }, 30000);
+        }, 2 * 60 * 1000); // Задержка в 2 минуты
 
+        // Третья проверка состояния машины через 3 минуты
         setTimeout(async () => {
           const finalState = await firebaseService.readData(machine_id);
           if (finalState.output.isDoorOpen !== 1) {
             logger.error(`Final state check failed. Machine ${machine_id} reset.`);
             await resetMachine(machine_id);
           }
-        }, 45000);
+        }, 3 * 60 * 1000); // Задержка в 3 минуты
       }
-    }, 30000);
+    }, 60 * 1000); // Задержка в 1 минуту
   } else {
     await firebaseService.writeData({ machine_status: 1 }, machine_id);
     await firebaseService.writeStartStopData({ machine_status: 1, mode: mode_id }, machine_id);
@@ -316,6 +319,16 @@ async function startMachine(machine_id, mode_id, washing_id) {
     setTimeout(async () => {
       await resetMachine(machine_id);
     }, 3000);  // Задержка в 3 секунды
+
+    // Перевод состояния из ACTIVE в AVAILABLE через 15 минут
+    setTimeout(async () => {
+      await washingService.updateWashing(washing_id, {
+        state: "AVAILABLE",
+        end_timer_val: null,
+        is_door_open: 0,
+      });
+      logger.info(`Machine ${machine_id} has been set to AVAILABLE after 15 minutes.`);
+    }, 15 * 60 * 1000); // 15 минут задержка
   }
 }
 
