@@ -16,7 +16,6 @@ import {
 } from "firebase/database";
 
 import machineTimerService from "./machineTimerService.js";
-import logger from "../logger.js"; // Импорт логгера для отслеживания действий
 
 const firebaseConfig = {
   apiKey: "AIzaSyB95Rp0pvwjcFi0dHEvvrRh0svfTkuL7MA",
@@ -34,16 +33,13 @@ const writeData = async (data, machine_id) => {
   const database = getDatabase(app);
 
   // Логируем данные перед отправкой в Firebase
-  logger.info(`Writing data to Firebase for machine ${machine_id}:`, data);
 
   try {
     const updates = {};
     updates["isOn"] = data.machine_status;
 
     await update(child(ref(database), `${machine_id}/input/isOn`), updates);
-    logger.info(`Successfully wrote data for machine ${machine_id}:`, updates);
   } catch (error) {
-    logger.error(`Error writing data to Firebase for machine ${machine_id}:`, error);
     throw error;
   }
 };
@@ -56,11 +52,9 @@ const writeStartStopData = async (data, machine_id) => {
       const updates_1 = {};
       updates_1["mode"] = data.mode;
 
-      logger.info(`Writing mode data to Firebase for machine ${machine_id}:`, updates_1);
       setTimeout(
         async () => {
           await update(child(ref(database), `${machine_id}/input/mode`), updates_1);
-          logger.info(`Successfully wrote mode data for machine ${machine_id}:`, updates_1);
         },
         5000
       );
@@ -73,14 +67,12 @@ const writeStartStopData = async (data, machine_id) => {
     setTimeout(
       async () => {
         await update(child(ref(database), `${machine_id}/input/isStarted`), updates_2);
-        logger.info(`Successfully wrote start/stop data for machine ${machine_id}:`, updates_2);
       },
       7000
     );
 
     return true;
   } catch (error) {
-    logger.error(`Error writing start/stop data to Firebase for machine ${machine_id}:`, error);
     throw error;
   }
 };
@@ -92,11 +84,8 @@ const writeCheckData = async (data, machine_id) => {
     const updates = {};
     updates["isChecking"] = data.isChecking;
 
-    logger.info(`Writing check data to Firebase for machine ${machine_id}:`, updates);
     await update(child(ref(database), `${machine_id}/input/isChecking`), updates);
-    logger.info(`Successfully wrote check data for machine ${machine_id}:`, updates);
   } catch (error) {
-    logger.error(`Error writing check data to Firebase for machine ${machine_id}:`, error);
     throw error;
   }
 };
@@ -108,11 +97,8 @@ const writeAdminData = async (data, machine_id) => {
     const updates = {};
     updates["/admin/"] = data.admin;
 
-    logger.info(`Writing admin data to Firebase for machine ${machine_id}:`, updates);
     await update(child(ref(database), `${machine_id}/input`), updates);
-    logger.info(`Successfully wrote admin data for machine ${machine_id}:`, updates);
   } catch (error) {
-    logger.error(`Error writing admin data to Firebase for machine ${machine_id}:`, error);
     throw error;
   }
 };
@@ -121,20 +107,16 @@ const readData = async (machineId) => {
   const dbRef = ref(getDatabase());
 
   try {
-    logger.info(`Reading data from Firebase for machine ${machineId}`);
     const result = await get(child(dbRef, `${machineId}`));
     const data = result.val();
-    logger.info(`Successfully read data for machine ${machineId}:`, data);
     return data;
   } catch (error) {
-    logger.error(`Error reading data from Firebase for machine ${machineId}:`, error);
     throw error;
   }
 };
 
 const onTimerChange = (machine_id) => {
   // Логирование изменений таймера для отладки
-  logger.info(`Listening for timer changes for machine ${machine_id}`);
   
   // Оригинальная логика была закомментирована
   /*
