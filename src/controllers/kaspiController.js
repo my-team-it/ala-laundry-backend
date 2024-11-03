@@ -101,7 +101,7 @@ async function check(query) {
     console.log("machine not ready1");
     return {
       txn_id: query.txn_id,
-      result: 5,
+      result: 6,
       bin: BIN,
       comment: "Machine is not ready",
     };
